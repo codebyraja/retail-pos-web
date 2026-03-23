@@ -173,7 +173,26 @@ const AddProduct = () => {
                   >
                     <div className="accordion-body border-top">
                       <div className="row">
-                        <div className="col-sm-6 col-12">
+                        <div className="col-lg-4 col-sm-4 col-12">
+                          <div className="mb-3 list position-relative">
+                            <label className="form-label">
+                              Item Code
+                              <span className="text-danger ms-1">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              className="form-control list"
+                              disabled
+                            />
+                            <button
+                              type="submit"
+                              className="btn btn-primaryadd"
+                            >
+                              Generate
+                            </button>
+                          </div>
+                        </div>
+                        <div className="col-sm-4 col-12">
                           <div className="mb-3">
                             <label className="form-label">
                               Store<span className="text-danger ms-1">*</span>
@@ -188,7 +207,7 @@ const AddProduct = () => {
                             />
                           </div>
                         </div>
-                        <div className="col-sm-6 col-12">
+                        <div className="col-sm-4 col-12">
                           <div className="mb-3">
                             <label className="form-label">
                               Warehouse
@@ -206,7 +225,7 @@ const AddProduct = () => {
                         </div>
                       </div>
                       <div className="row">
-                        <div className="col-sm-6 col-12">
+                        <div className="col-sm-4 col-12">
                           <div className="mb-3">
                             <label className="form-label">
                               Product Name
@@ -215,7 +234,7 @@ const AddProduct = () => {
                             <input type="text" className="form-control" />
                           </div>
                         </div>
-                        <div className="col-sm-6 col-12">
+                        <div className="col-sm-4 col-12">
                           <div className="mb-3">
                             <label className="form-label">
                               Slug<span className="text-danger ms-1">*</span>
@@ -223,9 +242,7 @@ const AddProduct = () => {
                             <input type="text" className="form-control" />
                           </div>
                         </div>
-                      </div>
-                      <div className="row">
-                        <div className="col-sm-6 col-12">
+                        <div className="col-sm-4 col-12">
                           <div className="mb-3 list position-relative">
                             <label className="form-label">
                               SKU<span className="text-danger ms-1">*</span>
@@ -239,26 +256,28 @@ const AddProduct = () => {
                             </button>
                           </div>
                         </div>
-                        <div className="col-sm-6 col-12">
-                          <div className="mb-3">
-                            <label className="form-label">
-                              Selling Type
-                              <span className="text-danger ms-1">*</span>
-                            </label>
-                            <CommonSelect
-                              className="w-100"
-                              options={sellingtype}
-                              value={selectedSellingType}
-                              onChange={(e) => setSelectedSellingType(e.value)}
-                              placeholder="Choose"
-                              filter={false}
-                            />
-                          </div>
-                        </div>
                       </div>
                       <div className="addservice-info">
                         <div className="row">
-                          <div className="col-sm-6 col-12">
+                          <div className="col-sm-4 col-12">
+                            <div className="mb-3">
+                              <label className="form-label">
+                                Selling Type
+                                <span className="text-danger ms-1">*</span>
+                              </label>
+                              <CommonSelect
+                                className="w-100"
+                                options={sellingtype}
+                                value={selectedSellingType}
+                                onChange={(e) =>
+                                  setSelectedSellingType(e.value)
+                                }
+                                placeholder="Choose"
+                                filter={false}
+                              />
+                            </div>
+                          </div>
+                          <div className="col-sm-4 col-12">
                             <div className="mb-3">
                               <div className="add-newplus">
                                 <label className="form-label">
@@ -283,7 +302,7 @@ const AddProduct = () => {
                               />
                             </div>
                           </div>
-                          <div className="col-sm-6 col-12">
+                          <div className="col-sm-4 col-12">
                             <div className="mb-3">
                               <label className="form-label">
                                 Sub Category
@@ -305,7 +324,7 @@ const AddProduct = () => {
                       </div>
                       <div className="add-product-new">
                         <div className="row">
-                          <div className="col-sm-6 col-12">
+                          <div className="col-sm-4 col-12">
                             <div className="mb-3">
                               <div className="add-newplus">
                                 <label className="form-label">
@@ -323,7 +342,7 @@ const AddProduct = () => {
                               />
                             </div>
                           </div>
-                          <div className="col-sm-6 col-12">
+                          <div className="col-sm-4 col-12">
                             <div className="mb-3">
                               <div className="add-newplus">
                                 <label className="form-label">
@@ -341,40 +360,23 @@ const AddProduct = () => {
                               />
                             </div>
                           </div>
-                        </div>
-                      </div>
-                      <div className="row">
-                        <div className="col-lg-6 col-sm-6 col-12">
-                          <div className="mb-3">
-                            <label className="form-label">
-                              Barcode Symbology
-                              <span className="text-danger ms-1">*</span>
-                            </label>
-                            <CommonSelect
-                              className="w-100"
-                              options={barcodesymbol}
-                              value={selectedBarcodeSymbol}
-                              onChange={(e) =>
-                                setSelectedBarcodeSymbol(e.value)
-                              }
-                              placeholder="Choose"
-                              filter={false}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-lg-6 col-sm-6 col-12">
-                          <div className="mb-3 list position-relative">
-                            <label className="form-label">
-                              Item Code
-                              <span className="text-danger ms-1">*</span>
-                            </label>
-                            <input type="text" className="form-control list" />
-                            <button
-                              type="submit"
-                              className="btn btn-primaryadd"
-                            >
-                              Generate
-                            </button>
+                          <div className="col-lg-4 col-sm-4 col-12">
+                            <div className="mb-3">
+                              <label className="form-label">
+                                Barcode Symbology
+                                <span className="text-danger ms-1">*</span>
+                              </label>
+                              <CommonSelect
+                                className="w-100"
+                                options={barcodesymbol}
+                                value={selectedBarcodeSymbol}
+                                onChange={(e) =>
+                                  setSelectedBarcodeSymbol(e.value)
+                                }
+                                placeholder="Choose"
+                                filter={false}
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -987,12 +989,16 @@ const AddProduct = () => {
         </div>
         <div className="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
           <p className="mb-0 text-gray-9">
-            2014 - 2025 © DreamsPOS. All Right Reserved
+            2025 - 2026 © Revergent Technologies. All Right Reserved
           </p>
           <p>
             Designed &amp; Developed by{" "}
-            <Link to="#" className="text-primary">
-              Dreams
+            <Link
+              to="https://revergent.in"
+              target="_blank"
+              className="text-primary"
+            >
+              Revergent
             </Link>
           </p>
         </div>

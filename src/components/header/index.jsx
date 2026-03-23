@@ -21,8 +21,9 @@ import {
   store_02,
   store_03,
   store_04,
-  usFlag } from
-"../../utils/imagepath";
+  usFlag,
+} from "../../utils/imagepath";
+
 const Header = () => {
   const route = all_routes;
   const [toggle, SetToggle] = useState(false);
@@ -30,17 +31,6 @@ const Header = () => {
   const [flagImage, _setFlagImage] = useState(usFlag);
   // const { t, i18n } = useTranslation();
   const changeLanguage = (_lng) => {
-
-
-
-
-
-
-
-
-
-
-
     // Debugging statement
     // i18n.changeLanguage(lng);
     // setFlagImage(
@@ -52,34 +42,38 @@ const Header = () => {
     //         ? 'assets/img/flags/es.png'
     //         : 'assets/img/flags/de.png'
     // );
-  };const isElementVisible = (element) => {return element.offsetWidth > 0 || element.offsetHeight > 0;};useEffect(() => {const handleMouseover = (e) => {
-        e.stopPropagation();
+  };
+  const isElementVisible = (element) => {
+    return element.offsetWidth > 0 || element.offsetHeight > 0;
+  };
+  useEffect(() => {
+    const handleMouseover = (e) => {
+      e.stopPropagation();
 
-        const body = document.body;
-        const toggleBtn =
-        document.getElementById("toggle_btn");
+      const body = document.body;
+      const toggleBtn = document.getElementById("toggle_btn");
 
-        if (
+      if (
         body.classList.contains("mini-sidebar") &&
-        isElementVisible(toggleBtn))
-        {
-          e.preventDefault();
-        }
-      };
+        isElementVisible(toggleBtn)
+      ) {
+        e.preventDefault();
+      }
+    };
 
-      document.addEventListener("mouseover", handleMouseover);
+    document.addEventListener("mouseover", handleMouseover);
 
-      return () => {
-        document.removeEventListener("mouseover", handleMouseover);
-      };
-    }, []);
+    return () => {
+      document.removeEventListener("mouseover", handleMouseover);
+    };
+  }, []);
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(
         document.fullscreenElement ||
-        document.mozFullScreenElement ||
-        document.webkitFullscreenElement ||
-        document.msFullscreenElement
+          document.mozFullScreenElement ||
+          document.webkitFullscreenElement ||
+          document.msFullscreenElement,
       );
     };
 
@@ -92,15 +86,15 @@ const Header = () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
       document.removeEventListener(
         "mozfullscreenchange",
-        handleFullscreenChange
+        handleFullscreenChange,
       );
       document.removeEventListener(
         "webkitfullscreenchange",
-        handleFullscreenChange
+        handleFullscreenChange,
       );
       document.removeEventListener(
         "msfullscreenchange",
-        handleFullscreenChange
+        handleFullscreenChange,
       );
     };
   }, []);
@@ -123,38 +117,21 @@ const Header = () => {
 
   let pathname = location.pathname;
 
-  const exclusionArray = [
-  "/dream-pos/index-three",
-  "/dream-pos/index-one"];
+  const exclusionArray = ["/dream-pos/index-three", "/dream-pos/index-one"];
 
   if (exclusionArray.indexOf(window.location.pathname) >= 0) {
     return "";
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   const toggleFullscreen = (elem) => {
     const doc = document;
     elem = elem || document.documentElement;
     if (
-    !doc.fullscreenElement &&
-    !doc.mozFullScreenElement &&
-    !doc.webkitFullscreenElement &&
-    !doc.msFullscreenElement)
-    {
+      !doc.fullscreenElement &&
+      !doc.mozFullScreenElement &&
+      !doc.webkitFullscreenElement &&
+      !doc.msFullscreenElement
+    ) {
       if (elem.requestFullscreen) {
         elem.requestFullscreen();
       } else if (elem.msRequestFullscreen) {
@@ -175,22 +152,15 @@ const Header = () => {
     }
   };
 
-
-
-
-
-
-
   const { expandMenus } = useSelector(
-    (state) => state.themeSetting.expandMenus
+    (state) => state.themeSetting.expandMenus,
   );
-  const dataLayout = useSelector(
-    (state) => state.themeSetting.dataLayout
-  );
+  const dataLayout = useSelector((state) => state.themeSetting.dataLayout);
 
   const expandMenu = () => {
     document.body.classList.remove("expand-menu");
   };
+  
   const expandMenuOpen = () => {
     document.body.classList.add("expand-menu");
   };
@@ -206,8 +176,8 @@ const Header = () => {
              ${expandMenus || dataLayout === "layout-hovered" ? "expand-menu" : ""}
              `}
             onMouseLeave={expandMenu}
-            onMouseOver={expandMenuOpen}>
-            
+            onMouseOver={expandMenuOpen}
+          >
             <Link to="/dashboard" className="logo logo-normal">
               <img src={logoPng} alt="img" />
             </Link>
@@ -222,14 +192,14 @@ const Header = () => {
               to="#"
               style={{
                 display:
-                pathname.includes("tasks") || pathname.includes("pos") ?
-                "none" :
-                pathname.includes("compose") ?
-                "none" :
-                ""
+                  pathname.includes("tasks") || pathname.includes("pos")
+                    ? "none"
+                    : pathname.includes("compose")
+                      ? "none"
+                      : "",
               }}
-              onClick={handlesidebar}>
-              
+              onClick={handlesidebar}
+            >
               <i className="feather icon-chevrons-left feather-16" />
             </Link>
           </div>
@@ -238,8 +208,8 @@ const Header = () => {
             id="mobile_btn"
             className="mobile_btn"
             to="#"
-            onClick={sidebarOverlay}>
-            
+            onClick={sidebarOverlay}
+          >
             <span className="bar-icon">
               <span />
               <span />
@@ -259,8 +229,8 @@ const Header = () => {
                     className="searchinputs input-group dropdown-toggle"
                     id="dropdownMenuClickable"
                     data-bs-toggle="dropdown"
-                    data-bs-auto-close="outside">
-                    
+                    data-bs-auto-close="outside"
+                  >
                     <input type="text" placeholder="Search" />
                     <div className="search-addon">
                       <span>
@@ -276,8 +246,8 @@ const Header = () => {
 
                   <div
                     className="dropdown-menu search-dropdown"
-                    aria-labelledby="dropdownMenuClickable">
-                    
+                    aria-labelledby="dropdownMenuClickable"
+                  >
                     <div className="search-info">
                       <h6>
                         <span>
@@ -300,9 +270,7 @@ const Header = () => {
                     <div className="search-info">
                       <h6>
                         <span>
-                          <i
-                            className="feather-16 feather icon-help-circle" />
-                          
+                          <i className="feather-16 feather icon-help-circle" />
                         </span>
                         Help
                       </h6>
@@ -351,15 +319,15 @@ const Header = () => {
               <Link
                 to="#"
                 className="dropdown-toggle nav-link select-store"
-                data-bs-toggle="dropdown">
-                
+                data-bs-toggle="dropdown"
+              >
                 <span className="user-info">
                   <span className="user-letter">
                     <img
                       src={store_01}
                       alt="Store Logo"
-                      className="img-fluid" />
-                    
+                      className="img-fluid"
+                    />
                   </span>
                   <span className="user-detail">
                     <span className="user-name">Freshmart</span>
@@ -391,8 +359,8 @@ const Header = () => {
               <Link
                 to="#"
                 className="btn btn-primary btn-md d-inline-flex align-items-center"
-                data-bs-toggle="dropdown">
-                
+                data-bs-toggle="dropdown"
+              >
                 <i className="ti ti-circle-plus me-1" />
                 Add New
               </Link>
@@ -500,8 +468,8 @@ const Header = () => {
             <li className="nav-item pos-nav">
               <Link
                 to={route.pos}
-                className="btn btn-dark btn-md d-inline-flex align-items-center">
-                
+                className="btn btn-dark btn-md d-inline-flex align-items-center"
+              >
                 <i className="ti ti-device-laptop me-1" />
                 POS
               </Link>
@@ -513,8 +481,8 @@ const Header = () => {
                 className="nav-link dropdown-toggle"
                 data-bs-toggle="dropdown"
                 to="#"
-                role="button">
-                
+                role="button"
+              >
                 {/* <i data-feather="globe" /> */}
                 {/* <FeatherIcon icon="globe" /> */}
                 <img src={flagImage} alt="img" height={16} />
@@ -523,8 +491,8 @@ const Header = () => {
                 <Link
                   to="#"
                   className="dropdown-item active"
-                  onClick={() => changeLanguage("en")}>
-                  
+                  onClick={() => changeLanguage("en")}
+                >
                   <img src={englishFlag} alt="img" height={16} />
                   {"English"}
                   {/* {t("English")} */}
@@ -532,8 +500,8 @@ const Header = () => {
                 <Link
                   to="#"
                   className="dropdown-item"
-                  onClick={() => changeLanguage("fr")}>
-                  
+                  onClick={() => changeLanguage("fr")}
+                >
                   <img src={arabicFlag} alt="img" height={16} /> Arabic
                 </Link>
               </div>
@@ -544,26 +512,25 @@ const Header = () => {
                 to="#"
                 id="btnFullscreen"
                 onClick={() => toggleFullscreen()}
-                className={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}>
-                
+                className={isFullscreen ? "Exit Fullscreen" : "Go Fullscreen"}
+              >
                 {/* <i data-feather="maximize" /> */}
                 <i className="ti ti-maximize"></i>
               </Link>
             </li>
-            <li className="nav-item nav-item-box">
+            {/* <li className="nav-item nav-item-box">
               <Link to="/email">
-                {/* <i data-feather="mail" /> */}
                 <i className="ti ti-mail"></i>
                 <span className="badge rounded-pill">1</span>
               </Link>
-            </li>
+            </li> */}
             {/* Notifications */}
             <li className="nav-item dropdown nav-item-box">
               <Link
                 to="#"
                 className="dropdown-toggle nav-link"
-                data-bs-toggle="dropdown">
-                
+                data-bs-toggle="dropdown"
+              >
                 {/* <i data-feather="bell" /> */}
                 <i className="ti ti-bell"></i>
                 {/* <span className="badge rounded-pill">2</span> */}
@@ -651,8 +618,8 @@ const Header = () => {
                   </Link>
                   <Link
                     to={route.activities}
-                    className="btn btn-primary btn-md w-100">
-                    
+                    className="btn btn-primary btn-md w-100"
+                  >
                     View all
                   </Link>
                 </div>
@@ -668,8 +635,8 @@ const Header = () => {
               <Link
                 to="#"
                 className="nav-link userset"
-                data-bs-toggle="dropdown">
-                
+                data-bs-toggle="dropdown"
+              >
                 <span className="user-info p-0">
                   <span className="user-letter">
                     <img src={avator1} alt="Img" className="img-fluid" />
@@ -713,8 +680,8 @@ const Header = () => {
               to="#"
               className="nav-link dropdown-toggle"
               data-bs-toggle="dropdown"
-              aria-expanded="false">
-              
+              aria-expanded="false"
+            >
               <i className="fa fa-ellipsis-v" />
             </Link>
             <div className="dropdown-menu dropdown-menu-right">
@@ -732,8 +699,8 @@ const Header = () => {
           {/* /Mobile Menu */}
         </div>
       </div>
-    </>);
-
+    </>
+  );
 };
 
 export default Header;
