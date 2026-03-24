@@ -7,6 +7,7 @@ import { Skeleton } from "primereact/skeleton";
 const PrimeDataTable = ({
   column,
   data = [],
+  searchQuery,
   totalRecords,
   currentPage = 1,
   setCurrentPage,
@@ -19,15 +20,28 @@ const PrimeDataTable = ({
   selectionMode,
   selection,
   onSelectionChange,
-  dataKey = "id"
+  dataKey = "id",
+  onRowClick,
 }) => {
+  // Filtered
+  const filteredData = searchQuery
+    ? data.filter((item) =>
+        Object.values(item).some((val) =>
+          String(val).toLowerCase().includes(searchQuery.toLowerCase()),
+        ),
+      )
+    : data;
+
   const skeletonRows = Array(rows).fill({});
-  const totalPages = Math.ceil(totalRecords / rows);
+  // const totalPages = Math.ceil(totalRecords / rows);
+  const totalPages = Math.ceil(filteredData?.length / rows);
 
   // Pagination
   const startIndex = (currentPage - 1) * rows;
   const endIndex = startIndex + rows;
-  const paginatedData = loading ? skeletonRows : data.slice(startIndex, endIndex);
+  const paginatedData = loading
+    ? skeletonRows
+    : filteredData.slice(startIndex, endIndex);
 
   const onPageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -49,7 +63,8 @@ const PrimeDataTable = ({
       paginator: false,
       emptyMessage: customEmptyMessage,
       footer: footer,
-      dataKey: dataKey
+      dataKey: dataKey,
+      ...(onRowClick && { onRowClick }),
     };
 
     if (selectionMode) {
@@ -57,7 +72,7 @@ const PrimeDataTable = ({
         ...baseProps,
         selectionMode,
         selection,
-        onSelectionChange
+        onSelectionChange,
       };
     }
 
@@ -67,7 +82,6 @@ const PrimeDataTable = ({
   return (
     <>
       <DataTable {...getDataTableProps()}>
-        
         {/* ✅ Auto insert Selection Column */}
         {selectionMode && (
           <Column
@@ -88,7 +102,11 @@ const PrimeDataTable = ({
             field={col.field}
             body={(rowData, options) =>
               loading ? (
-                <Skeleton width="100%" height="2rem" className="skeleton-glow" />
+                <Skeleton
+                  width="100%"
+                  height="2rem"
+                  className="skeleton-glow"
+                />
               ) : col.body ? (
                 col.body(rowData, options)
               ) : (

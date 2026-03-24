@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
-const Loader = () => {
+const LoaderPos = () => {
   const [loading, setLoading] = useState(false);
   const location = useLocation();
 
@@ -39,4 +39,4 @@ const Loader = () => {
 
 };
 
-export default Loader;
+export default LoaderPos;

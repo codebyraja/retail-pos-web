@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import EditCategoryList from "../../core/modals/inventory/editcategorylist";
@@ -9,8 +9,15 @@ import DeleteModal from "../../components/delete-modal";
 import SearchFromApi from "../../components/data-table/search";
 import { MODAL_TYPES } from "../../routes/modal_root/modalTypes";
 import useAppModal from "../../core/common/modal/useAppModal";
+import { api_url } from "../../environment";
+import { formatDate } from "../../utils/common";
+import toast from "react-hot-toast";
+import Loader from "../../components/loader/Loader";
 
 const CategoryList = () => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
   const { open } = useAppModal();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, _setTotalRecords] = useState(5);
@@ -21,9 +28,10 @@ const CategoryList = () => {
   const handleSearch = (value) => {
     setSearchQuery(value);
   };
-  const dataSource = useSelector(
-    (state) => state.rootReducer.categotylist_data,
-  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [_searchQuery]);
 
   const columns = [
     {
@@ -43,6 +51,7 @@ const CategoryList = () => {
       field: "createdon",
       key: "createdon",
       sortable: true,
+      body: (data) => <div>{formatDate(data.createdon)}</div>,
     },
     {
       header: "Status",
@@ -62,9 +71,12 @@ const CategoryList = () => {
         <div className="edit-delete-action d-flex align-items-center">
           <Link
             className="me-2 p-2 d-flex align-items-center border rounded"
-            to="#"
-            data-bs-toggle="modal"
-            data-bs-target="#edit-customer"
+            onClick={() =>
+              open(MODAL_TYPES.CATEGORY, {
+                data: _row,
+                onSuccess: fetchCategories,
+              })
+            }
           >
             <i className="feather icon-edit"></i>
           </Link>
@@ -81,8 +93,35 @@ const CategoryList = () => {
     },
   ];
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${api_url}/GetMaster?masterType=5`);
+      const json = await res.json();
+
+      const formattedData = json?.data.map((category) => ({
+        code: category.code,
+        category: category.name,
+        categoryslug: category.alias,
+        createdon: category.creationTime,
+        status: category.status ? "Inactive" : "Active",
+      }));
+
+      setCategories(formattedData);
+    } catch (error) {
+      toast.error("Error fetching categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
+      {loading && <Loader loading />}
       <div className="page-wrapper">
         <div className="content">
           <div className="page-header">
@@ -96,7 +135,12 @@ const CategoryList = () => {
             <div className="page-btn">
               <Link
                 className="btn btn-primary"
-                onClick={() => open(MODAL_TYPES.CATEGORY)}
+                onClick={() =>
+                  open(MODAL_TYPES.CATEGORY, {
+                    data: null,
+                    onSuccess: fetchCategories,
+                  })
+                }
               >
                 <i className="ti ti-circle-plus me-1"></i>
                 Add Category
@@ -176,7 +220,8 @@ const CategoryList = () => {
               <div className="table-responsive category-table">
                 <PrimeDataTable
                   column={columns}
-                  data={dataSource}
+                  data={categories}
+                  searchQuery={_searchQuery}
                   rows={rows}
                   setRows={setRows}
                   currentPage={currentPage}
@@ -186,6 +231,11 @@ const CategoryList = () => {
                   selection={selectedCategories}
                   onSelectionChange={(e) => setSelectedCategories(e.value)}
                   dataKey="id"
+                  // onRowClick={(e) => {
+                  //   if (e.originalEvent.target.type === "checkbox") return;
+                  //   setSelectedRow(e.data);
+                  //   open(MODAL_TYPES.CATEGORY, { data: e.data });
+                  // }}
                 />
               </div>
             </div>

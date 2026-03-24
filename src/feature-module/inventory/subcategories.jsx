@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CommonFooter from "../../components/footer/commonFooter";
 import {
@@ -192,7 +192,43 @@ const SubCategories = () => {
   const [totalRecords, _setTotalRecords] = useState(5);
   const [rows, setRows] = useState(10);
   const [_searchQuery, setSearchQuery] = useState(undefined);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${api_url}/GetMaster?masterType=5`);
+      const json = await res.json();
+
+      const formatted = json?.data.map((item) => ({
+        label: item.name,
+        value: item.code,
+      }));
+
+      setCategories(formatted);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const [filteredData, setFilteredData] = useState(subcateorydata);
+
+  useEffect(() => {
+    if (selectedCategory) {
+      const filtered = subcateorydata.filter(
+        (item) => item.parentcategory === selectedCategory.label,
+      );
+
+      setFilteredData(filtered);
+    } else {
+      setFilteredData(subcateorydata);
+    }
+  }, [selectedCategory]);
 
   const handleSearch = (value) => {
     setSearchQuery(value);
@@ -330,30 +366,21 @@ const SubCategories = () => {
                     className="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
                     data-bs-toggle="dropdown"
                   >
-                    Category
+                    {selectedCategory?.label || "Category"}
                   </Link>
-                  <ul className="dropdown-menu  dropdown-menu-end p-3">
-                    <li>
-                      <Link to="#" className="dropdown-item rounded-1">
-                        Computers
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="#" className="dropdown-item rounded-1">
-                        Electronics
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="#" className="dropdown-item rounded-1">
-                        Shoe
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="#" className="dropdown-item rounded-1">
-                        Electronics
-                      </Link>
-                    </li>
-                  </ul>
+                  {categories.map((item, index) => (
+                    <ul className="dropdown-menu dropdown-menu-end p-3">
+                      <li key={index}>
+                        <Link
+                          to="#"
+                          className="dropdown-item rounded-1"
+                          onClick={() => setSelectedCategory(item)}
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    </ul>
+                  ))}
                 </div>
 
                 <div className="dropdown me-2">
@@ -383,7 +410,7 @@ const SubCategories = () => {
               <div className="table-responsive sub-category-table">
                 <PrimeDataTable
                   column={columns}
-                  data={subcateorydata}
+                  data={filteredData}
                   rows={rows}
                   setRows={setRows}
                   currentPage={currentPage}
