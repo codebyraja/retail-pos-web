@@ -4,6 +4,7 @@ import AddBrand from "../../core/modals/inventory/addbrand";
 import AddCategory from "../../core/modals/inventory/addcategory";
 import AddSubCategory from "../../core/modals/inventory/addsubcategory";
 import Addunits from "../../core/modals/inventory/addunits";
+import AddVariant from "../../core/modals/inventory/addvariant";
 import AddCustomer from "../../core/modals/peoples/addcustomer";
 import AddUsers from "../../core/modals/usermanagement/addusers";
 import { MODAL_TYPES } from "./modalTypes";
@@ -13,6 +14,7 @@ export const MODAL_REGISTRY = {
   [MODAL_TYPES.CATEGORY]: AddCategory,
   [MODAL_TYPES.SUBCATEGORY]: AddSubCategory,
   [MODAL_TYPES.UNIT]: Addunits,
+  [MODAL_TYPES.VARIANT] : AddVariant,
   [MODAL_TYPES.CUSTOMER]: AddCustomer,
   [MODAL_TYPES.USER]: AddUsers,
   // [MODAL_TYPES.QUICK_ADD_PRODUCT]: QuickAddProductModal,

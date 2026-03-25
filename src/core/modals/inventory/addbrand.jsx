@@ -29,8 +29,6 @@ const AddBrand = () => {
     }
   }, [payload]);
 
-  console.log("form", form);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -50,9 +48,6 @@ const AddBrand = () => {
       });
 
       const data = await res.json();
-
-      console.log("data", data);
-
       if (data.status === 1) {
         toast.success(data.msg || "Brand saved successfully");
         payload?.onSuccess?.();

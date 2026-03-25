@@ -1,18 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CommonFooter from "../../components/footer/commonFooter";
-import {
-  brandIcon1,
-  brandIcon10,
-  brandIcon2,
-  brandIcon3,
-  brandIcon4,
-  brandIcon5,
-  brandIcon6,
-  brandIcon7,
-  brandIcon8,
-  brandIcon9,
-} from "../../utils/imagepath";
 import PrimeDataTable from "../../components/data-table";
 import TableTopHead from "../../components/table-top-head";
 import DeleteModal from "../../components/delete-modal";
@@ -39,12 +27,12 @@ const BrandList = () => {
       header: "Brand",
       key: "name",
       sortable: true,
-      body: (rowData) => (
+      body: (_row) => (
         <span className="productimgname">
           <Link to="#" className="product-img stock-img">
-            <img alt="" src={rowData.logo} />
+            <img alt="" src={_row.image} />
           </Link>
-          <span>{rowData.name}</span>
+          <span>{_row.name}</span>
         </span>
       ),
     },
@@ -115,11 +103,10 @@ const BrandList = () => {
         code: row.code,
         name: row.name,
         alias: row.alias,
-        image: rows.image,
+        image: row.image,
         createdon: row.createdOn,
         status: row.status ? "Inactive" : "Active",
       }));
-
       setBrands(formattedData);
     } catch (error) {
       toast.error("Error fetching categories:", error);

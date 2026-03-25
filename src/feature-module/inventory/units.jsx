@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CommonFooter from "../../components/footer/commonFooter";
 import PrimeDataTable from "../../components/data-table";
@@ -8,29 +7,62 @@ import DeleteModal from "../../components/delete-modal";
 import SearchFromApi from "../../components/data-table/search";
 import useAppModal from "../../core/common/modal/useAppModal";
 import { MODAL_TYPES } from "../../routes/modal_root/modalTypes";
+import toast from "react-hot-toast";
+import Loader from "../../components/loader/Loader";
+import { api_url } from "../../environment";
+import { formatDate } from "../../utils/common";
 
 export const Units = () => {
   const { open } = useAppModal();
-  const dataSource = useSelector((state) => state.rootReducer.unit_data);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, _setTotalRecords] = useState(5);
   const [rows, setRows] = useState(10);
   const [_searchQuery, setSearchQuery] = useState(undefined);
   const [selectedUnits, setSelectedUnits] = useState([]);
+  const [units, setUnits] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = (value) => setSearchQuery(value);
+  useEffect(() => {
+    fetchUnits();
+  }, []);
+
+  const fetchUnits = async () => {
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${api_url}/GetMaster?masterType=8`);
+      const json = await res.json();
+
+      console.log("json", json);
+
+      const formattedData = json?.data?.map((row) => ({
+        code: row.code,
+        name: row.name,
+        alias: row.alias,
+        noofproducts: row.noOfProducts,
+        createdon: row.createdOn,
+        status: row.status ? "Inactive" : "Active",
+      }));
+
+      setUnits(formattedData);
+    } catch (error) {
+      toast.error("Error fetching categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const columns = [
     {
-      field: "unit",
+      field: "name",
       header: "Unit",
-      key: "unit",
+      key: "name",
       sortable: true,
     },
     {
-      field: "shortname",
+      field: "alias",
       header: "Short Name",
-      key: "shortname",
+      key: "alias",
       sortable: true,
     },
     {
@@ -44,6 +76,7 @@ export const Units = () => {
       header: "Created Date",
       key: "createdon",
       sortable: true,
+      body: (_row) => <span>{formatDate(_row.createdon)}</span>,
     },
     {
       field: "status",
@@ -66,8 +99,9 @@ export const Units = () => {
           <Link
             className="me-2 p-2 d-flex align-items-center border rounded"
             to="#"
-            data-bs-toggle="modal"
-            data-bs-target="#edit-units"
+            onClick={() =>
+              open(MODAL_TYPES.UNIT, { data: _row, onSuccess: fetchUnits })
+            }
           >
             <i className="feather icon-edit"></i>
           </Link>
@@ -86,6 +120,7 @@ export const Units = () => {
 
   return (
     <>
+      {loading && <Loader loading />}
       <div className="page-wrapper">
         <div className="content">
           <div className="page-header">
@@ -99,7 +134,9 @@ export const Units = () => {
             <div className="page-btn">
               <Link
                 className="btn btn-primary"
-                onClick={() => open(MODAL_TYPES.UNIT)}
+                onClick={() =>
+                  open(MODAL_TYPES.UNIT, { data: null, onSuccess: fetchUnits })
+                }
               >
                 <i className="ti ti-circle-plus me-1"></i> Add Unit
               </Link>
@@ -109,11 +146,10 @@ export const Units = () => {
           <div className="card table-list-card">
             <div className="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
               <SearchFromApi
-                callback={handleSearch}
+                callback={(e) => setSearchQuery(e)}
                 rows={rows}
                 setRows={setRows}
               />
-
               <div className="d-flex table-dropdown my-xl-auto right-content align-items-center flex-wrap row-gap-3">
                 <div className="dropdown me-2">
                   <Link
@@ -188,7 +224,8 @@ export const Units = () => {
               <div className="table-responsive">
                 <PrimeDataTable
                   column={columns}
-                  data={dataSource}
+                  data={units}
+                  searchQuery={_searchQuery}
                   rows={rows}
                   setRows={setRows}
                   currentPage={currentPage}

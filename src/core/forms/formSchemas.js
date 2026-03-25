@@ -30,6 +30,14 @@ export const unitFormSchema = {
   status: true,
 };
 
+export const variantFormSchema = {
+  code: 0,
+  name: "",
+  alias: "",
+  values: "",
+  status: true,
+};
+
 export const productFormSchema = {
   storeId: null,
   warehouseId: null,

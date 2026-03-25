@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import CommonFooter from "../../components/footer/commonFooter";
@@ -6,110 +6,140 @@ import PrimeDataTable from "../../components/data-table";
 import TableTopHead from "../../components/table-top-head";
 import DeleteModal from "../../components/delete-modal";
 import SearchFromApi from "../../components/data-table/search";
-
-
-
-
-
-
-
-
-
-
-
-
-
+import useAppModal from "../../core/common/modal/useAppModal";
+import { MODAL_TYPES } from "../../routes/modal_root/modalTypes";
+import { api_url } from "../../environment";
+import toast from "react-hot-toast";
+import Loader from "../../components/loader/Loader";
+import { formatDate } from "../../utils/common";
 
 const VariantAttributes = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, _setTotalRecords] = useState(5);
   const [rows, setRows] = useState(10);
   const [selectedVariants, setSelectedVariants] = useState([]);
-  const dataSource = useSelector(
-    (state) => state.rootReducer.variantattributes_data
-  );
+  const [Variants, setVariants] = useState([]);
+  const [_searchQuery, setSearchQuery] = useState(undefined);
+  const [loading, setLoading] = useState(false);
+  const { open } = useAppModal();
+
+  useEffect(() => {
+    fetchVariant();
+  }, []);
+
+  const fetchVariant = async () => {
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${api_url}/GetMaster?masterType=10`);
+      const json = await res.json();
+
+      console.log("json", json);
+
+      const formattedData = json?.data?.map((row) => ({
+        code: row.code,
+        name: row.name,
+        alias: row.alias,
+        values: row.values,
+        createdon: row.createdOn,
+        status: row.status ? "Inactive" : "Active",
+      }));
+
+      setVariants(formattedData);
+    } catch (error) {
+      toast.error("Error fetching categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const columns = [
-  {
-    header:
-    <label className="checkboxs">
-          <input type="checkbox" id="select-all" />
-          <span className="checkmarks" />
-        </label>,
+    // {
+    //   header: (
+    //     <label className="checkboxs">
+    //       <input type="checkbox" id="select-all" />
+    //       <span className="checkmarks" />
+    //     </label>
+    //   ),
 
-    body: () =>
-    <label className="checkboxs">
-          <input type="checkbox" />
-          <span className="checkmarks" />
-        </label>,
+    //   body: () => (
+    //     <label className="checkboxs">
+    //       <input type="checkbox" />
+    //       <span className="checkmarks" />
+    //     </label>
+    //   ),
 
-    sortable: false,
-    key: "checked"
-  },
-  {
-    field: "variant",
-    header: "Variant",
-    key: "variant",
-    sortable: true
-  },
-  {
-    field: "values",
-    header: "Values",
-    key: "values",
-    sortable: true
-  },
-  {
-    field: "createdon",
-    header: "Created On",
-    key: "createdon",
-    sortable: true
-  },
-  {
-    field: "status",
-    header: "Status",
-    key: "status",
-    sortable: true,
-    body: (rowData) =>
-    <span className="badge table-badge bg-success fw-medium fs-10">
+    //   sortable: false,
+    //   key: "checked",
+    // },
+    {
+      field: "name",
+      header: "Variant",
+      key: "name",
+      sortable: true,
+    },
+    {
+      field: "alias",
+      header: "Variant Alias",
+      key: "alias",
+      sortable: true,
+    },
+    {
+      field: "values",
+      header: "Values",
+      key: "values",
+      sortable: true,
+    },
+    {
+      field: "createdon",
+      header: "Created On",
+      key: "createdon",
+      sortable: true,
+      body: (_row) => <span>{formatDate(_row.createdon)}</span>,
+    },
+    {
+      field: "status",
+      header: "Status",
+      key: "status",
+      sortable: true,
+      body: (rowData) => (
+        <span className="badge table-badge bg-success fw-medium fs-10">
           {rowData.status}
         </span>
-
-  },
-  {
-    header: "",
-    field: "actions",
-    key: "actions",
-    sortable: false,
-    body: (_row) =>
-    <div className="edit-delete-action d-flex align-items-center">
+      ),
+    },
+    {
+      header: "",
+      field: "actions",
+      key: "actions",
+      sortable: false,
+      body: (_row) => (
+        <div className="edit-delete-action d-flex align-items-center">
           <Link
-        className="me-2 p-2 d-flex align-items-center border rounded"
-        to="#"
-        data-bs-toggle="modal"
-        data-bs-target="#edit-units">
-        
+            className="me-2 p-2 d-flex align-items-center border rounded"
+            to="#"
+            onClick={() =>
+              open(MODAL_TYPES.VARIANT, { data: _row, onSuccess: fetchVariant })
+            }
+          >
             <i className="feather icon-edit"></i>
           </Link>
           <Link
-        className="p-2 d-flex align-items-center border rounded"
-        to="#"
-        data-bs-toggle="modal"
-        data-bs-target="#delete-modal">
-        
+            className="p-2 d-flex align-items-center border rounded"
+            to="#"
+            data-bs-toggle="modal"
+            data-bs-target="#delete-modal"
+          >
             <i className="feather icon-trash-2"></i>
           </Link>
         </div>
+      ),
+    },
+  ];
 
-  }];
-
-  const [_searchQuery, setSearchQuery] = useState(undefined);
-
-
-  const handleSearch = (value) => {
-    setSearchQuery(value);
-  };
   return (
     <>
+      {loading && <Loader loader />}
       <div className="page-wrapper">
         <div className="content">
           <div className="page-header">
@@ -124,9 +154,13 @@ const VariantAttributes = () => {
               <Link
                 to="#"
                 className="btn btn-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#add-units">
-                
+                onClick={() =>
+                  open(MODAL_TYPES.VARIANT, {
+                    data: null,
+                    onSuccess: fetchVariant,
+                  })
+                }
+              >
                 <i className="ti ti-circle-plus me-1"></i> Add Variant
               </Link>
             </div>
@@ -134,17 +168,18 @@ const VariantAttributes = () => {
           <div className="card table-list-card">
             <div className="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
               <SearchFromApi
-                callback={handleSearch}
+                callback={(e) => setSearchQuery(e)}
                 rows={rows}
-                setRows={setRows} />
-              
+                setRows={setRows}
+              />
+
               <div className="d-flex table-dropdown my-xl-auto right-content align-items-center flex-wrap row-gap-3">
                 <div className="dropdown me-2">
                   <Link
                     to="#"
                     className="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
-                    data-bs-toggle="dropdown">
-                    
+                    data-bs-toggle="dropdown"
+                  >
                     Status
                   </Link>
                   <ul className="dropdown-menu  dropdown-menu-end p-3">
@@ -166,7 +201,8 @@ const VariantAttributes = () => {
               <div className="table-responsive">
                 <PrimeDataTable
                   column={columns}
-                  data={dataSource}
+                  data={Variants}
+                  searchQuery={_searchQuery}
                   rows={rows}
                   setRows={setRows}
                   currentPage={currentPage}
@@ -175,8 +211,8 @@ const VariantAttributes = () => {
                   selectionMode="checkbox"
                   selection={selectedVariants}
                   onSelectionChange={(e) => setSelectedVariants(e.value)}
-                  dataKey="id" />
-                
+                  dataKey="id"
+                />
               </div>
             </div>
           </div>
@@ -198,8 +234,8 @@ const VariantAttributes = () => {
                     type="button"
                     className="close bg-danger text-white fs-16"
                     data-bs-dismiss="modal"
-                    aria-label="Close">
-                    
+                    aria-label="Close"
+                  >
                     <span aria-hidden="true">×</span>
                   </button>
                 </div>
@@ -227,8 +263,9 @@ const VariantAttributes = () => {
                           type="checkbox"
                           id="user2"
                           className="check"
-                          defaultChecked />
-                        
+                          defaultChecked
+                        />
+
                         <label htmlFor="user2" className="checktoggle" />
                       </div>
                     </div>
@@ -238,15 +275,15 @@ const VariantAttributes = () => {
                   <button
                     type="button"
                     className="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
-                    data-bs-dismiss="modal">
-                    
+                    data-bs-dismiss="modal"
+                  >
                     Cancel
                   </button>
                   <Link
                     to="#"
                     className="btn btn-primary fs-13 fw-medium p-2 px-3"
-                    data-bs-dismiss="modal">
-                    
+                    data-bs-dismiss="modal"
+                  >
                     Add Variant
                   </Link>
                 </div>
@@ -270,8 +307,8 @@ const VariantAttributes = () => {
                     type="button"
                     className="close bg-danger text-white fs-16"
                     data-bs-dismiss="modal"
-                    aria-label="Close">
-                    
+                    aria-label="Close"
+                  >
                     <span aria-hidden="true">×</span>
                   </button>
                 </div>
@@ -284,8 +321,8 @@ const VariantAttributes = () => {
                       <input
                         type="text"
                         className="form-control"
-                        defaultValue="Size" />
-                      
+                        defaultValue="Size"
+                      />
                     </div>
                     <div className="mb-3">
                       <label className="form-label">
@@ -303,8 +340,9 @@ const VariantAttributes = () => {
                           type="checkbox"
                           id="user3"
                           className="check"
-                          defaultChecked />
-                        
+                          defaultChecked
+                        />
+
                         <label htmlFor="user3" className="checktoggle" />
                       </div>
                     </div>
@@ -314,15 +352,15 @@ const VariantAttributes = () => {
                   <button
                     type="button"
                     className="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
-                    data-bs-dismiss="modal">
-                    
+                    data-bs-dismiss="modal"
+                  >
                     Cancel
                   </button>
                   <Link
                     to="#"
                     className="btn btn-primary fs-13 fw-medium p-2 px-3"
-                    data-bs-dismiss="modal">
-                    
+                    data-bs-dismiss="modal"
+                  >
                     Save Changes
                   </Link>
                 </div>
@@ -332,9 +370,9 @@ const VariantAttributes = () => {
         </div>
       </div>
 
-   <DeleteModal />
-    </>);
-
+      <DeleteModal />
+    </>
+  );
 };
 
 export default VariantAttributes;
