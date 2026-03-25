@@ -9,10 +9,12 @@ import Loader from "../../../components/loader/Loader";
 
 const AddCategory = () => {
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState(null);
   const { close, payload } = useModal();
-  const { form, setForm, handleChange, resetForm } = useForm(categoryFormSchema);
+  const { form, setForm, handleChange, resetForm } =
+    useForm(categoryFormSchema);
   const isEdit = !!payload?.data;
-  
+
   useEffect(() => {
     if (payload?.data) {
       setForm({
@@ -31,23 +33,23 @@ const AddCategory = () => {
     setLoading(true);
 
     try {
-      const requestPayload = {
-        code: form.code,
-        name: form.name,
-        alias: form.alias,
-        masterType: 5, // Assuming 5 represents the category master type
-        Status: form.status,
-      };
+      const formData = new FormData();
+      formData.append("code", form.code);
+      formData.append("name", form.name);
+      formData.append("alias", form.alias);
+      formData.append("masterType", 5);
+      formData.append("status", form.status);
 
-      const resp = await fetch(`${api_url}/saveMaster`, {
+      const res = await fetch(`${api_url}/saveMaster`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestPayload),
+        body: formData,
+        // headers: {
+        //   "content-type": "application/json",
+        // },
+        // body: JSON.stringify(requestPayload),
       });
 
-      const data = await resp.json();
+      const data = await res.json();
       if (data.status === 1) {
         toast.success(data.msg || "Category saved successfully");
         payload?.onSuccess?.();

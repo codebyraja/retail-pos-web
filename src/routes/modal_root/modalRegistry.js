@@ -1,6 +1,6 @@
 // modalRegistry.js
 
-import AddBrand from "../../core/modals/addbrand";
+import AddBrand from "../../core/modals/inventory/addbrand";
 import AddCategory from "../../core/modals/inventory/addcategory";
 import AddSubCategory from "../../core/modals/inventory/addsubcategory";
 import Addunits from "../../core/modals/inventory/addunits";

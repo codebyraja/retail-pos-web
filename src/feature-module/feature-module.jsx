@@ -130,7 +130,7 @@ const FeatureModule = () => {
               <Outlet />
               <ModalRoot />
               <Toaster position="top-right" reverseOrder={false} />
-              {location.pathname.includes("layout") ? <></> : <ThemeSettings />}
+              {/* {location.pathname.includes("layout") ? <></> : <ThemeSettings />} */}
             </div>
           </>
         </div>

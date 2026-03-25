@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CommonFooter from "../../components/footer/commonFooter";
 import {
@@ -19,118 +19,47 @@ import DeleteModal from "../../components/delete-modal";
 import SearchFromApi from "../../components/data-table/search";
 import useAppModal from "../../core/common/modal/useAppModal";
 import { MODAL_TYPES } from "../../routes/modal_root/modalTypes";
+import Loader from "../../components/loader/Loader";
+import { api_url } from "../../environment";
+import { formatDate } from "../../utils/common";
 
-export const brandlistdata = [
-  {
-    id: 1,
-    brand: "Lenevo",
-    logo: brandIcon1,
-    createdon: "25 May 2023",
-    status: "Active",
-  },
-  {
-    id: 2,
-    brand: "Boat",
-    logo: brandIcon2,
-    createdon: "24 Jun 2023",
-    status: "Active",
-  },
-  {
-    id: 3,
-    brand: "Nike",
-    logo: brandIcon3,
-    createdon: "23 Jul 2023",
-    status: "Active",
-  },
-  {
-    id: 4,
-    brand: "Apple",
-    logo: brandIcon4,
-    createdon: "22 Aug 2023",
-    status: "Active",
-  },
-  {
-    id: 5,
-    brand: "Amazon",
-    logo: brandIcon5,
-    createdon: "21 Sep 2023",
-    status: "Active",
-  },
-  {
-    id: 6,
-    brand: "Woodmart",
-    logo: brandIcon6,
-    createdon: "20 Sep 2023",
-    status: "Active",
-  },
-  {
-    id: 7,
-    brand: "Versace",
-    logo: brandIcon7,
-    createdon: "20 Sep 2023",
-    status: "Active",
-  },
-  {
-    id: 8,
-    brand: "Lava",
-    logo: brandIcon8,
-    createdon: "20 Sep 2023",
-    status: "Active",
-  },
-  {
-    id: 9,
-    brand: "Bently",
-    logo: brandIcon9,
-    createdon: "20 Sep 2023",
-    status: "Active",
-  },
-  {
-    id: 10,
-    brand: "Nilkamal",
-    logo: brandIcon10,
-    createdon: "20 Sep 2023",
-    status: "Active",
-  },
-];
 const BrandList = () => {
   const { open } = useAppModal();
-
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, _setTotalRecords] = useState(5);
   const [rows, setRows] = useState(10);
   const [_searchQuery, setSearchQuery] = useState(undefined);
   const [selectedBrands, setSelectedBrands] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = (value) => {
-    setSearchQuery(value);
-  };
   const columns = [
     {
-      field: "brand",
+      field: "name",
       header: "Brand",
-      key: "brand",
-      sortable: true,
-    },
-    {
-      field: "logo",
-      header: "Image",
-      key: "logo",
+      key: "name",
       sortable: true,
       body: (rowData) => (
         <span className="productimgname">
           <Link to="#" className="product-img stock-img">
             <img alt="" src={rowData.logo} />
           </Link>
+          <span>{rowData.name}</span>
         </span>
       ),
-
-      style: { width: "5%" },
+    },
+    {
+      field: "alias",
+      header: "Alias",
+      key: "alias",
+      sortable: true,
     },
     {
       field: "createdon",
       header: "Created Date",
       key: "createdon",
       sortable: true,
+      body: (data) => <div>{formatDate(data.createdon)}</div>,
     },
     {
       field: "status",
@@ -153,8 +82,9 @@ const BrandList = () => {
           <Link
             className="me-2 p-2 d-flex align-items-center border rounded"
             to="#"
-            data-bs-toggle="modal"
-            data-bs-target="#edit-customer"
+            onClick={() =>
+              open(MODAL_TYPES.BRAND, { data: _row, onSuccess: fetchBrand })
+            }
           >
             <i className="feather icon-edit"></i>
           </Link>
@@ -171,8 +101,36 @@ const BrandList = () => {
     },
   ];
 
+  useEffect(() => {
+    fetchBrand();
+  }, []);
+
+  const fetchBrand = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${api_url}/GetMaster?masterType=7`);
+      const json = await res.json();
+
+      const formattedData = json?.data?.map((row) => ({
+        code: row.code,
+        name: row.name,
+        alias: row.alias,
+        image: rows.image,
+        createdon: row.createdOn,
+        status: row.status ? "Inactive" : "Active",
+      }));
+
+      setBrands(formattedData);
+    } catch (error) {
+      toast.error("Error fetching categories:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
+      {loading && <Loader loading />}
       <div className="page-wrapper">
         <div className="content">
           <div className="page-header">
@@ -186,7 +144,9 @@ const BrandList = () => {
             <div className="page-btn">
               <Link
                 className="btn btn-primary"
-                onClick={() => open(MODAL_TYPES.BRAND)}
+                onClick={() =>
+                  open(MODAL_TYPES.BRAND, { data: null, onSuccess: fetchBrand })
+                }
               >
                 <i className="ti ti-circle-plus me-1"></i>
                 Add Brand
@@ -197,7 +157,7 @@ const BrandList = () => {
           <div className="card table-list-card">
             <div className="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
               <SearchFromApi
-                callback={handleSearch}
+                callback={(e) => setSearchQuery(e)}
                 rows={rows}
                 setRows={setRows}
               />
@@ -266,7 +226,8 @@ const BrandList = () => {
               <div className="table-responsive brand-table">
                 <PrimeDataTable
                   column={columns}
-                  data={brandlistdata}
+                  data={brands}
+                  searchQuery={_searchQuery}
                   rows={rows}
                   setRows={setRows}
                   currentPage={currentPage}

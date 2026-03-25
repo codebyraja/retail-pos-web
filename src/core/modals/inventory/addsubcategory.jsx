@@ -7,7 +7,7 @@ import useForm from "../../hooks/useForm";
 import { api_url } from "../../../environment";
 import toast from "react-hot-toast";
 import Loader from "../../../components/loader/Loader";
-import useModal from "antd/es/modal/useModal";
+import useModal from "../../../routes/modal_root/useModal";
 
 const AddSubCategory = () => {
   const [file, setFile] = useState(null);
@@ -19,20 +19,29 @@ const AddSubCategory = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [text, setText] = useState("");
-  const isEdit = payload?.data;
-
-  console.log("form", form, file);
+  const isEdit = !!payload?.data;
 
   useEffect(() => {
     if (payload?.data) {
       setForm({
-        // name: payload.data.category,
-        // alias: payload.data.categoryslug,
-        // code: payload.data.code,
-        // status: payload.data.status === "Active",
+        name: payload.data.name,
+        alias: payload.data.alias,
+        code: payload.data.code,
+        status: payload.data.status === "Active",
       });
+
+      // ✅ category set
+      setSelectedCategory(payload.data.parentGrpCode);
+
+      // ✅ description set
+      setText(payload.data.remark || "");
+
+      // optional: file reset
+      setFile(null);
     } else {
       resetForm();
+      setSelectedCategory(null);
+      setText("");
     }
   }, [payload]);
 
@@ -41,6 +50,8 @@ const AddSubCategory = () => {
   }, []);
 
   const fetchCategories = async () => {
+    setLoading(true);
+
     try {
       const res = await fetch(`${api_url}/GetMaster?masterType=5`);
       const json = await res.json();
@@ -53,6 +64,8 @@ const AddSubCategory = () => {
       setCategories(formatted);
     } catch (err) {
       toast.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,16 +74,16 @@ const AddSubCategory = () => {
 
     try {
       const formData = new FormData();
-
+      formData.append("code", form.code);
       formData.append("name", form.name);
       formData.append("alias", form.alias);
       formData.append("parentGrp", selectedCategory);
       formData.append("masterType", 4);
       formData.append("remark", text);
       formData.append("status", form.status);
-
       formData.append("image", file);
 
+      console.log("formData", [...formData.entries()]);
       const res = await fetch(`${api_url}/saveMaster`, {
         method: "POST",
         body: formData,

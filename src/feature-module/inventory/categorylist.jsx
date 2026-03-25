@@ -25,10 +25,6 @@ const CategoryList = () => {
   const [_searchQuery, setSearchQuery] = useState(undefined);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
-  const handleSearch = (value) => {
-    setSearchQuery(value);
-  };
-
   useEffect(() => {
     setCurrentPage(1);
   }, [_searchQuery]);
@@ -107,7 +103,7 @@ const CategoryList = () => {
         code: category.code,
         category: category.name,
         categoryslug: category.alias,
-        createdon: category.creationTime,
+        createdon: category.createdOn,
         status: category.status ? "Inactive" : "Active",
       }));
 
@@ -121,7 +117,7 @@ const CategoryList = () => {
 
   return (
     <div>
-      {loading && <Loader loading />}
+      {loading && <Loader loading={loading} />}
       <div className="page-wrapper">
         <div className="content">
           <div className="page-header">
@@ -151,7 +147,7 @@ const CategoryList = () => {
           <div className="card table-list-card">
             <div className="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
               <SearchFromApi
-                callback={handleSearch}
+                callback={(e) => setSearchQuery(e)}
                 rows={rows}
                 setRows={setRows}
               />
