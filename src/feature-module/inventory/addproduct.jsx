@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../routes/all_routes";
 import CounterThree from "../../components/counter/counterThree";
@@ -14,8 +14,11 @@ import DeleteModal from "../../components/delete-modal";
 import { Editor } from "primereact/editor";
 import useAppModal from "../../core/common/modal/useAppModal";
 import { MODAL_TYPES } from "../../routes/modal_root/modalTypes";
+import { api_url } from "../../environment";
+import Loader from "../../components/loader/Loader";
 
 const AddProduct = () => {
+  const [loading, setLoading] = useState(false);
   const { open } = useAppModal();
   const route = all_routes;
   const [tags, setTags] = useState(["Red", "Black"]);
@@ -35,6 +38,62 @@ const AddProduct = () => {
   const [selectedDiscountType, setSelectedDiscountType] = useState(null);
   const [selectedWarranty, setSelectedWarranty] = useState(null);
   const [text, setText] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [allSubCategories, setAllSubCategories] = useState([]);
+  const [filteredSubCategories, setFilteredSubCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [units, setUnits] = useState([]);
+
+  useEffect(() => {
+    loadMasters();
+  }, []);
+
+  const loadMasters = async () => {
+    const cat = await getMasters(5);
+    const subCat = await getMasters(4);
+    const brand = await getMasters(7);
+    const unit = await getMasters(8);
+
+    setCategories(cat);
+    setAllSubCategories(subCat);
+    setBrands(brand);
+    setUnits(unit);
+  };
+
+  const getMasters = async (masterType) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${api_url}/Master?masterType=${masterType}`);
+      const json = await res.json();
+      console.log("json", json);
+
+      if (json.status === 1) {
+        return json?.data?.map((x) => ({
+          label: x.name,
+          value: x.code,
+          parent: x.parentGrpCode,
+        }));
+      }
+
+      return [];
+    } catch (err) {
+      console.error("Master Load Error:", err);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCategoryChange = (value) => {
+    setSelectedCategory(value);
+
+    const filtered = allSubCategories.filter((x) => x.parent === value);
+
+    console.log("filtered", filtered);
+    setFilteredSubCategories(filtered);
+
+    setSelectedSubCategory(null);
+  };
 
   const store = [
     { value: "choose", label: "Choose" },
@@ -50,29 +109,29 @@ const AddProduct = () => {
     { value: "sincere", label: "Sincere" },
   ];
 
-  const category = [
-    { value: "choose", label: "Choose" },
-    { value: "lenovo", label: "Lenovo" },
-    { value: "electronics", label: "Electronics" },
-  ];
+  // const category = [
+  //   { value: "choose", label: "Choose" },
+  //   { value: "lenovo", label: "Lenovo" },
+  //   { value: "electronics", label: "Electronics" },
+  // ];
 
-  const subcategory = [
-    { value: "choose", label: "Choose" },
-    { value: "lenovo", label: "Lenovo" },
-    { value: "electronics", label: "Electronics" },
-  ];
+  // const subcategory = [
+  //   { value: "choose", label: "Choose" },
+  //   { value: "lenovo", label: "Lenovo" },
+  //   { value: "electronics", label: "Electronics" },
+  // ];
 
-  const brand = [
-    { value: "choose", label: "Choose" },
-    { value: "nike", label: "Nike" },
-    { value: "bolt", label: "Bolt" },
-  ];
+  // const brand = [
+  //   { value: "choose", label: "Choose" },
+  //   { value: "nike", label: "Nike" },
+  //   { value: "bolt", label: "Bolt" },
+  // ];
 
-  const unit = [
-    { value: "choose", label: "Choose" },
-    { value: "kg", label: "Kg" },
-    { value: "pc", label: "Pc" },
-  ];
+  // const unit = [
+  //   { value: "choose", label: "Choose" },
+  //   { value: "kg", label: "Kg" },
+  //   { value: "pc", label: "Pc" },
+  // ];
 
   const sellingtype = [
     { value: "choose", label: "Choose" },
@@ -120,6 +179,7 @@ const AddProduct = () => {
   };
   return (
     <>
+      {loading && <Loader loading />}
       <div className="page-wrapper">
         <div className="content">
           <div className="page-header">
@@ -294,9 +354,9 @@ const AddProduct = () => {
                               </div>
                               <CommonSelect
                                 className="w-100"
-                                options={category}
+                                options={categories}
                                 value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.value)}
+                                onChange={(e) => handleCategoryChange(e.value)}
                                 placeholder="Choose"
                                 filter={false}
                               />
@@ -310,7 +370,7 @@ const AddProduct = () => {
                               </label>
                               <CommonSelect
                                 className="w-100"
-                                options={subcategory}
+                                options={filteredSubCategories}
                                 value={selectedSubCategory}
                                 onChange={(e) =>
                                   setSelectedSubCategory(e.value)
@@ -334,7 +394,7 @@ const AddProduct = () => {
                               </div>
                               <CommonSelect
                                 className="w-100"
-                                options={brand}
+                                options={brands}
                                 value={selectedBrand}
                                 onChange={(e) => setSelectedBrand(e.value)}
                                 placeholder="Choose"
@@ -352,7 +412,7 @@ const AddProduct = () => {
                               </div>
                               <CommonSelect
                                 className="w-100"
-                                options={unit}
+                                options={units}
                                 value={selectedUnit}
                                 onChange={(e) => setSelectedUnit(e.value)}
                                 placeholder="Choose"

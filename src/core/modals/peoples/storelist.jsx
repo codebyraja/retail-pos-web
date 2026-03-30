@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import TableTopHead from "../../../components/table-top-head";
@@ -12,82 +11,85 @@ const StoreList = () => {
   const data = useSelector((state) => state.rootReducer.customerdata);
 
   const columns = [
-  {
-    title: "Store Name",
-    dataIndex: "CustomerName",
-    sorter: (a, b) => a.CustomerName.length - b.CustomerName.length
-  },
+    {
+      title: "Store Name",
+      dataIndex: "CustomerName",
+      sorter: (a, b) => a.CustomerName.length - b.CustomerName.length,
+    },
 
-  {
-    title: "Store",
-    dataIndex: "Customer",
-    sorter: (a, b) => a.Customer.length - b.Customer.length
-  },
+    {
+      title: "Store",
+      dataIndex: "Customer",
+      sorter: (a, b) => a.Customer.length - b.Customer.length,
+    },
 
-  {
-    title: "Email",
-    dataIndex: "Email",
-    sorter: (a, b) => a.Email.length - b.Email.length
-  },
+    {
+      title: "Email",
+      dataIndex: "Email",
+      sorter: (a, b) => a.Email.length - b.Email.length,
+    },
 
-  {
-    title: "Phone",
-    dataIndex: "Phone",
-    sorter: (a, b) => a.Phone.length - b.Phone.length
-  },
+    {
+      title: "Phone",
+      dataIndex: "Phone",
+      sorter: (a, b) => a.Phone.length - b.Phone.length,
+    },
 
-  {
-    title: "Country",
-    dataIndex: "Country",
-    sorter: (a, b) => a.Country.length - b.Country.length
-  },
-  {
-    title: "Status",
-    dataIndex: "Code",
-    render: () =>
-    <span
-      className={`badge  badge-success d-inline-flex align-items-center badge-xs`}>
-      
+    {
+      title: "Country",
+      dataIndex: "Country",
+      sorter: (a, b) => a.Country.length - b.Country.length,
+    },
+    {
+      title: "Status",
+      dataIndex: "Code",
+      render: () => (
+        <span
+          className={`badge  badge-success d-inline-flex align-items-center badge-xs`}
+        >
           <i className="ti ti-point-filled me-1" />
           Active
-        </span>,
+        </span>
+      ),
 
-    sorter: (a, b) => a.Code.length - b.Code.length
-  },
-  {
-    title: "Action",
-    dataIndex: "action",
-    render: () =>
-    <div className="action-table-data">
+      sorter: (a, b) => a.Code.length - b.Code.length,
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      render: () => (
+        <div className="action-table-data">
           <div className="edit-delete-action">
             <div className="input-block add-lists"></div>
 
             <Link className="me-2 p-2" to="#">
-             <i className="feather icon-eye feather-view" />
+              <i className="feather icon-eye feather-view" />
             </Link>
 
             <Link
-          className="me-2 p-2"
-          to="#"
-          data-bs-toggle="modal"
-          data-bs-target="#edit-store">
-          
+              className="me-2 p-2"
+              to="#"
+              data-bs-toggle="modal"
+              data-bs-target="#edit-store"
+            >
               <i className="feather icon-edit"></i>
             </Link>
 
             <Link
-          data-bs-toggle="modal"
-          data-bs-target="#delete-modal"
-          className="p-2 d-flex align-items-center border rounded"
-          to="#">
-          
+              data-bs-toggle="modal"
+              data-bs-target="#delete-modal"
+              className="p-2 d-flex align-items-center border rounded"
+              to="#"
+            >
               <i className="feather icon-trash-2" />
             </Link>
           </div>
-        </div>,
+        </div>
+      ),
 
-    sorter: (a, b) => a.createdby.length - b.createdby.length
-  }];
+      sorter: (a, b) => a.createdby.length - b.createdby.length,
+    },
+  ];
 
   const [rows, setRows] = useState(10);
   const [_searchQuery, setSearchQuery] = useState(undefined);
@@ -102,17 +104,17 @@ const StoreList = () => {
             <div className="add-item d-flex">
               <div className="page-title">
                 <h4>Stores</h4>
-                <h6>Manage your Store</h6>
+                <h6>Manage your Store123</h6>
               </div>
             </div>
-           <TableTopHead />
+            <TableTopHead />
             <div className="page-btn">
               <Link
                 to="#"
                 data-bs-toggle="modal"
                 data-bs-target="#add-store"
-                className="btn btn-primary">
-                
+                className="btn btn-primary"
+              >
                 <i className="feather icon-plus-circle me-2" />
                 Add Store
               </Link>
@@ -125,15 +127,16 @@ const StoreList = () => {
               <SearchFromApi
                 callback={handleSearch}
                 rows={rows}
-                setRows={setRows} />
-              
+                setRows={setRows}
+              />
+
               <div className="d-flex table-dropdown my-xl-auto right-content align-items-center flex-wrap row-gap-3">
                 <div className="dropdown me-2">
                   <Link
                     to="#"
                     className="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
-                    data-bs-toggle="dropdown">
-                    
+                    data-bs-toggle="dropdown"
+                  >
                     Select Status
                   </Link>
                   <ul className="dropdown-menu  dropdown-menu-end p-3">
@@ -165,7 +168,7 @@ const StoreList = () => {
 
           {/* /product list */}
         </div>
-      <CommonFooter />
+        <CommonFooter />
       </div>
       <>
         {/* Add Store */}
@@ -180,8 +183,8 @@ const StoreList = () => {
                   type="button"
                   className="close"
                   data-bs-dismiss="modal"
-                  aria-label="Close">
-                  
+                  aria-label="Close"
+                >
                   <span aria-hidden="true">×</span>
                 </button>
               </div>
@@ -206,8 +209,9 @@ const StoreList = () => {
                     <div className="pass-group">
                       <input
                         type="password"
-                        className="form-control pass-input" />
-                      
+                        className="form-control pass-input"
+                      />
+
                       <span className="fas toggle-password fa-eye-slash" />
                     </div>
                   </div>
@@ -230,8 +234,9 @@ const StoreList = () => {
                         type="checkbox"
                         id="user2"
                         className="check"
-                        defaultChecked />
-                      
+                        defaultChecked
+                      />
+
                       <label htmlFor="user2" className="checktoggle" />
                     </div>
                   </div>
@@ -240,15 +245,15 @@ const StoreList = () => {
                   <button
                     type="button"
                     className="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
-                    data-bs-dismiss="modal">
-                    
+                    data-bs-dismiss="modal"
+                  >
                     Cancel
                   </button>
                   <button
                     type="button"
                     data-bs-dismiss="modal"
-                    className="btn btn-primary fs-13 fw-medium p-2 px-3">
-                    
+                    className="btn btn-primary fs-13 fw-medium p-2 px-3"
+                  >
                     Add Store
                   </button>
                 </div>
@@ -269,8 +274,8 @@ const StoreList = () => {
                   type="button"
                   className="close"
                   data-bs-dismiss="modal"
-                  aria-label="Close">
-                  
+                  aria-label="Close"
+                >
                   <span aria-hidden="true">×</span>
                 </button>
               </div>
@@ -283,8 +288,8 @@ const StoreList = () => {
                     <input
                       type="text"
                       className="form-control"
-                      defaultValue="Electro Mart" />
-                    
+                      defaultValue="Electro Mart"
+                    />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">
@@ -293,8 +298,8 @@ const StoreList = () => {
                     <input
                       type="text"
                       className="form-control"
-                      defaultValue="johnsmith" />
-                    
+                      defaultValue="johnsmith"
+                    />
                   </div>
                   <div className="input-blocks mb-3">
                     <label className="form-label">
@@ -304,8 +309,9 @@ const StoreList = () => {
                       <input
                         type="password"
                         className="form-control pass-input"
-                        defaultValue="********" />
-                      
+                        defaultValue="********"
+                      />
+
                       <span className="fas toggle-password fa-eye-slash" />
                     </div>
                   </div>
@@ -316,8 +322,8 @@ const StoreList = () => {
                     <input
                       type="email"
                       className="form-control"
-                      defaultValue="electromart@example.com" />
-                    
+                      defaultValue="electromart@example.com"
+                    />
                   </div>
                   <div className="mb-3">
                     <label className="form-label">
@@ -326,8 +332,8 @@ const StoreList = () => {
                     <input
                       type="text"
                       className="form-control"
-                      defaultValue={+12498345785} />
-                    
+                      defaultValue={+12498345785}
+                    />
                   </div>
                   <div className="mb-0">
                     <div className="status-toggle modal-status d-flex justify-content-between align-items-center">
@@ -336,8 +342,9 @@ const StoreList = () => {
                         type="checkbox"
                         id="user1"
                         className="check"
-                        defaultChecked />
-                      
+                        defaultChecked
+                      />
+
                       <label htmlFor="user1" className="checktoggle" />
                     </div>
                   </div>
@@ -346,15 +353,15 @@ const StoreList = () => {
                   <button
                     type="button"
                     className="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
-                    data-bs-dismiss="modal">
-                    
+                    data-bs-dismiss="modal"
+                  >
                     Cancel
                   </button>
                   <button
                     type="button"
                     data-bs-dismiss="modal"
-                    className="btn btn-primary fs-13 fw-medium p-2 px-3">
-                    
+                    className="btn btn-primary fs-13 fw-medium p-2 px-3"
+                  >
                     save Changes
                   </button>
                 </div>
@@ -362,47 +369,10 @@ const StoreList = () => {
             </div>
           </div>
         </div>
-        {/* /Edit Store */}
       </>
-
-      <div className="modal fade" id="delete-modal">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="page-wrapper-new p-0">
-              <div className="content p-5 px-3 text-center">
-                <span className="rounded-circle d-inline-flex p-2 bg-danger-transparent mb-2">
-                  <i className="ti ti-trash fs-24 text-danger" />
-                </span>
-                <h4 className="fs-20 text-gray-9 fw-bold mb-2 mt-1">
-                  Delete Store
-                </h4>
-                <p className="text-gray-6 mb-0 fs-16">
-                  Are you sure you want to delete employee?
-                </p>
-                <div className="modal-footer-btn mt-3 d-flex justify-content-center">
-                  <button
-                    type="button"
-                    className="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
-                    data-bs-dismiss="modal">
-                    
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    data-bs-dismiss="modal"
-                    className="btn btn-submit fs-13 fw-medium p-2 px-3">
-                    
-                    Yes Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       <DeleteModal />
-    </>);
-
+    </>
+  );
 };
 
 export default StoreList;

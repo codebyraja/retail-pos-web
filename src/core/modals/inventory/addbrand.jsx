@@ -21,7 +21,6 @@ const AddBrand = () => {
         code: payload.data.code,
         name: payload.data.name,
         alias: payload.data.alias,
-        code: payload.data.code,
         status: payload.data.status === "Active",
       });
     } else {

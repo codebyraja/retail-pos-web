@@ -38,6 +38,32 @@ export const variantFormSchema = {
   status: true,
 };
 
+export const storeFormSchema = {
+  code: 0,
+  name: "",
+  alias: "",
+  username: "",
+  password: "",
+  email: "",
+  phone: "",
+  status: true,
+};
+
+export const warehouseFormSchema = {
+  code: 0,
+  name: "",
+  alias: "",
+  email: "",
+  contactPerson: "",
+  phone: "",
+  phonework: "",
+  address: "",
+  city: "",
+  state: "",
+  postalcode: "",
+  status: true,
+};
+
 export const productFormSchema = {
   storeId: null,
   warehouseId: null,

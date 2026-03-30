@@ -9,6 +9,7 @@ export const alphaNumeric = /^[a-zA-Z0-9 ]+$/;
 export const onlyAlphabet = /^[A-Za-z\s]+$/;
 export const COMPANYNAMELENGTH = 100;
 
+
 export const OnlyAllowLetters = (event) => {
   const allowedKeys = [
   "Backspace",
@@ -38,6 +39,7 @@ export const capitalizeFirstLetterOfEachWord = (text) => {
   map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())?.
   join(" ");
 };
+
 export function sanitizeStringWithUnderscores(input) {
   if (typeof input !== "string") return "";
 
@@ -88,6 +90,7 @@ export function formatSharedDate(sharedAt) {
   if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
   return `In ${Math.abs(diffDays)} day${Math.abs(diffDays) > 1 ? "s" : ""}`;
 }
+
 export const formatTime = (time) => {
   const minutes = Math.floor(time / 60);
   const seconds = time % 60;

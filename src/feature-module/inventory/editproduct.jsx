@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { all_routes } from "../../routes/all_routes";
 import Addunits from "../../core/modals/inventory/addunits";
 import AddCategory from "../../core/modals/inventory/addcategory";
-import AddBrand from "../../core/modals/addbrand";
 import CounterThree from "../../components/counter/counterThree";
 import RefreshIcon from "../../components/tooltip-content/refresh";
 import CollapesIcon from "../../components/tooltip-content/collapes";
@@ -25,12 +24,8 @@ const EditProduct = () => {
   const [date1, setDate1] = useState(new Date());
   const [date2, setDate2] = useState(new Date());
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedBarcodeSymbol, setSelectedBarcodeSymbol] =
-  React.useState(null);
+  const [selectedBarcodeSymbol, setSelectedBarcodeSymbol] = React.useState(null);
   const [selectedTaxType, setSelectedTaxType] = React.useState(null);
-
-
-
   const [selectedWarranty, setSelectedWarranty] = useState(null);
   const [selectedStore, setSelectedStore] = useState(null);
   const [selectedWarehouse, setSelectedWarehouse] = useState(
