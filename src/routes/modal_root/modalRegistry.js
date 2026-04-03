@@ -5,6 +5,7 @@ import AddCategory from "../../core/modals/inventory/addcategory";
 import AddSubCategory from "../../core/modals/inventory/addsubcategory";
 import Addunits from "../../core/modals/inventory/addunits";
 import AddVariant from "../../core/modals/inventory/addvariant";
+import AddWarranty from "../../core/modals/inventory/addwarranty";
 import AddCustomer from "../../core/modals/peoples/addcustomer";
 import AddStore from "../../core/modals/peoples/addstore";
 import AddWarehouse from "../../core/modals/peoples/addwarehouse";
@@ -19,6 +20,7 @@ export const MODAL_REGISTRY = {
   [MODAL_TYPES.VARIANT]: AddVariant,
   [MODAL_TYPES.STORE]: AddStore,
   [MODAL_TYPES.WAREHOUSE]: AddWarehouse,
+  [MODAL_TYPES.WARRANTY]: AddWarranty,
   [MODAL_TYPES.CUSTOMER]: AddCustomer,
   [MODAL_TYPES.USER]: AddUsers,
   // [MODAL_TYPES.QUICK_ADD_PRODUCT]: QuickAddProductModal,

@@ -96,6 +96,7 @@ const AddWarehouse = () => {
 
   useEffect(() => {
     if (payload?.data) {
+      setLoading(true);
       setForm({
         code: payload.data.code,
         name: payload.data.name,
@@ -110,6 +111,7 @@ const AddWarehouse = () => {
       setSelectedCountry(payload.data.country);
       setSelectedState(payload.data.state);
       setSelectedCity(payload.data.city);
+      setLoading(false);
     } else {
       resetForm();
     }
@@ -144,7 +146,8 @@ const AddWarehouse = () => {
       console.log("response", data?.status);
 
       if (data?.status === 1) {
-        toast.success(data.msg || "Store saved successfully");
+
+        toast.success(data.msg || "Warehouse saved successfully");
         payload?.onSuccess?.();
         if (isEdit) {
           close();

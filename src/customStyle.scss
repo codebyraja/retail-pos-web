@@ -7,6 +7,28 @@
 
 $__basecolor: #2c3038;
 
+.phone-img-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.p-multiselect {
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.p-multiselect-label {
+  padding: 6px 10px;
+}
+
+.p-multiselect-token {
+  background: #eef2ff;
+  color: #333;
+  border-radius: 4px;
+}
+
+
 .worldmap__figure-container {
   height: 247px !important;
 }

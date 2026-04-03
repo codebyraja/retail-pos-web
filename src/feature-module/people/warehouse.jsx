@@ -88,7 +88,10 @@ const Warehouse = () => {
       sortable: false,
       body: (_row) => (
         <div className="edit-delete-action">
-          <Link className="me-2 p-2 d-flex align-items-center border rounded" to="#">
+          <Link
+            className="me-2 p-2 d-flex align-items-center border rounded"
+            to="#"
+          >
             <i className="feather icon-eye"></i>
           </Link>
           <Link
@@ -97,7 +100,7 @@ const Warehouse = () => {
             onClick={() =>
               open(MODAL_TYPES.WAREHOUSE, {
                 data: _row,
-                onSuccess: fetchWarehouse,
+                onSuccess: () => fetchWarehouse(),
               })
             }
           >
@@ -126,6 +129,8 @@ const Warehouse = () => {
       const res = await fetch(`${api_url}/GetMaster?masterType=12`);
       const json = await res.json();
 
+      // console.log("Warehouse data:", json);
+
       const formattedData = json?.data?.map((row) => ({
         code: row.code,
         name: row.name,
@@ -133,13 +138,15 @@ const Warehouse = () => {
         email: row.c3,
         phone: row.c4,
         address: row.c5,
-        city: row.cm1,
-        state: row.cm2,
-        country: row.cm3,
-        postalcode: row.cm4,
+        city: row.cM1,
+        state: row.cM2,
+        country: row.cM3,
+        postalcode: row.cM4,
         createdOn: row.createdOn,
         status: row.deactive === 1 ? "Inactive" : "Active",
       }));
+
+      console.log("Formatted Warehouse data:", formattedData);
 
       setWarehouses(formattedData);
     } catch (error) {
@@ -169,7 +176,7 @@ const Warehouse = () => {
                 onClick={() =>
                   open(MODAL_TYPES.WAREHOUSE, {
                     data: null,
-                    onSuccess: () => {},
+                    onSuccess: () => fetchWarehouse(),
                   })
                 }
               >

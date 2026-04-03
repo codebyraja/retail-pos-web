@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import CommonFooter from "../../components/footer/commonFooter";
@@ -6,198 +6,124 @@ import PrimeDataTable from "../../components/data-table";
 import TableTopHead from "../../components/table-top-head";
 import CommonSelect from "../../components/select/common-select";
 import DeleteModal from "../../components/delete-modal";
-import { Editor } from "primereact/editor";
 import SearchFromApi from "../../components/data-table/search";
-
-
-
-
-
-
-
-
-
-
-
-
-
+import useAppModal from "../../core/common/modal/useAppModal";
+import { MODAL_TYPES } from "../../routes/modal_root/modalTypes";
+import toast from "react-hot-toast";
+import { api_url } from "../../environment";
+import Loader from "../../components/loader/Loader";
 
 const Warranty = () => {
+  const { open } = useAppModal();
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, _setTotalRecords] = useState(5);
   const [rows, setRows] = useState(10);
   const [_searchQuery, setSearchQuery] = useState(undefined);
   const [selectedWarranties, setSelectedWarranties] = useState([]);
+  const [warranties, setWarehouses] = useState([]);
 
   const handleSearch = (value) => {
     setSearchQuery(value);
   };
 
-  const dataSource = useSelector(
-    (state) => state.rootReducer.warranty_data
-  );
-  const [selectedPeriod, setSelectedPeriod] = useState(null);
-  const Period = [
-  { label: "Month", value: "1" },
-  { label: "Year", value: "2" }];
-
-  const [text, setText] = useState("");
+  const dataSource = useSelector((state) => state.rootReducer.warranty_data);
 
   const columns = [
-  {
-    header:
-    <label className="checkboxs">
-          <input type="checkbox" id="select-all" />
-          <span className="checkmarks" />
-        </label>,
-
-    body: () =>
-    <label className="checkboxs">
-          <input type="checkbox" />
-          <span className="checkmarks" />
-        </label>,
-
-    sortable: false,
-    key: "checked"
-  },
-  {
-    field: "name",
-    header: "Name",
-    key: "name",
-    sortable: true
-  },
-  {
-    field: "description",
-    header: "Description",
-    key: "description",
-    sortable: true
-  },
-  {
-    field: "duration",
-    header: "Duration",
-    key: "duration",
-    sortable: true
-  },
-  {
-    field: "status",
-    header: "Status",
-    key: "status",
-    sortable: true,
-    body: (rowData) =>
-    <span className="badge table-badge bg-success fw-medium fs-10">
+    {
+      field: "name",
+      header: "Name",
+      key: "name",
+      sortable: true,
+    },
+    {
+      field: "description",
+      header: "Description",
+      key: "description",
+      sortable: true,
+    },
+    {
+      field: "duration",
+      header: "Duration",
+      key: "duration",
+      sortable: true,
+    },
+    {
+      field: "status",
+      header: "Status",
+      key: "status",
+      sortable: true,
+      body: (rowData) => (
+        <span className="badge table-badge bg-success fw-medium fs-10">
           {rowData.status}
         </span>
-
-  },
-  {
-    header: "",
-    field: "actions",
-    key: "actions",
-    sortable: false,
-    body: (_row) =>
-    <div className="edit-delete-action d-flex align-items-center">
+      ),
+    },
+    {
+      header: "",
+      field: "actions",
+      key: "actions",
+      sortable: false,
+      body: (_row) => (
+        <div className="edit-delete-action d-flex align-items-center">
           <Link
-        className="me-2 p-2 d-flex align-items-center border rounded"
-        to="#"
-        data-bs-toggle="modal"
-        data-bs-target="#edit-units">
-        
+            className="me-2 p-2 d-flex align-items-center border rounded"
+            to="#"
+            onClick={() =>
+              open(MODAL_TYPES.WARRANTY, {
+                data: _row,
+                onSuccess: fetchWarranty,
+              })
+            }
+          >
             <i className="feather icon-edit"></i>
           </Link>
           <Link
-        className="p-2 d-flex align-items-center border rounded"
-        to="#"
-        data-bs-toggle="modal"
-        data-bs-target="#delete-modal">
-        
+            className="p-2 d-flex align-items-center border rounded"
+            to="#"
+            data-bs-toggle="modal"
+            data-bs-target="#delete-modal"
+          >
             <i className="feather icon-trash-2"></i>
           </Link>
         </div>
+      ),
+    },
+  ];
 
-  }];
+  useEffect(() => {
+    fetchWarranty();
+  }, []);
 
+  const fetchWarranty = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${api_url}/GetMaster?masterType=12`);
+      const json = await res.json();
 
-  // const columns: ColumnType[] = [
-  //   {
-  //     title: (
-  //       <label className="checkboxs">
-  //         <input type="checkbox" id="select-all" />
-  //         <span className="checkmarks" />
-  //       </label>
-  //     ),
-  //     dataIndex: "checkbox",
-  //     key: "checkbox",
-  //     render: () => (
-  //       <label className="checkboxs">
-  //         <input type="checkbox" />
-  //         <span className="checkmarks" />
-  //       </label>
-  //     ),
-  //     sorter: false,
-  //     width: "10px",
-  //   },
-  //   {
-  //     title: "Name",
-  //     dataIndex: "name",
-  //     sorter: (a: WarrantyData, b: WarrantyData) =>
-  //       a.name.length - b.name.length,
-  //     width: "10px",
-  //   },
-  //   {
-  //     title: "Description",
-  //     dataIndex: "description",
-  //     sorter: (a: WarrantyData, b: WarrantyData) =>
-  //       a.description.length - b.description.length,
-  //     width: "10px",
-  //   },
-  //   {
-  //     title: "Duration",
-  //     dataIndex: "duration",
-  //     sorter: (a: WarrantyData, b: WarrantyData) =>
-  //       a.duration.length - b.duration.length,
-  //     width: "10px",
-  //   },
-  //   {
-  //     title: "Status",
-  //     dataIndex: "status",
-  //     render: (text: string): JSX.Element => (
-  //       <span className="badge table-badge bg-success fw-medium fs-10">
-  //         {text}
-  //       </span>
-  //     ),
-  //     sorter: (a: WarrantyData, b: WarrantyData) =>
-  //       a.status.length - b.status.length,
-  //   },
-  //   {
-  //     title: "",
-  //     dataIndex: "actions",
-  //     key: "actions",
-  //     render: (): JSX.Element => (
-  //       <div className="edit-delete-action d-flex align-items-center">
-  //         <Link
-  //           className="me-2 p-2 d-flex align-items-center border rounded"
-  //           to="#"
-  //           data-bs-toggle="modal"
-  //           data-bs-target="#edit-units"
-  //         >
-  //           <i  className="feather icon-edit"></i>
-  //         </Link>
-  //         <Link
-  //           className="p-2 d-flex align-items-center border rounded"
-  //           to="#"
-  //           data-bs-toggle="modal"
-  //           data-bs-target="#delete-modal"
-  //         >
-  //           <i  className="feather icon-trash-2"></i>
-  //         </Link>
-  //       </div>
-  //     ),
-  //   },
-  // ];
+      // console.log("Warehouse data:", json);
 
+      const formattedData = json?.data?.map((row) => ({
+        code: row.code,
+        name: row.name,
+        contactPerson: row.c1,
+        createdOn: row.createdOn,
+        status: row.deactive === 1 ? "Inactive" : "Active",
+      }));
+
+      console.log("Formatted Warranty data:", formattedData);
+
+      setWarehouses(formattedData);
+    } catch (error) {
+      toast.error("Error fetching warranties:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
+      {loading && <Loader loading />}
       <div className="page-wrapper">
         <div className="content">
           <div className="page-header">
@@ -212,9 +138,13 @@ const Warranty = () => {
               <Link
                 to="#"
                 className="btn btn-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#add-units">
-                
+                onClick={() =>
+                  open(MODAL_TYPES.WARRANTY, {
+                    data: null,
+                    onSuccess: () => {},
+                  })
+                }
+              >
                 <i className="ti ti-circle-plus me-1"></i> Add Warranty
               </Link>
             </div>
@@ -225,15 +155,16 @@ const Warranty = () => {
               <SearchFromApi
                 callback={handleSearch}
                 rows={rows}
-                setRows={setRows} />
-              
+                setRows={setRows}
+              />
+
               <div className="d-flex table-dropdown my-xl-auto right-content align-items-center flex-wrap row-gap-3">
                 <div className="dropdown me-2">
                   <Link
                     to="#"
                     className="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
-                    data-bs-toggle="dropdown">
-                    
+                    data-bs-toggle="dropdown"
+                  >
                     Status
                   </Link>
                   <ul className="dropdown-menu  dropdown-menu-end p-3">
@@ -264,8 +195,8 @@ const Warranty = () => {
                   selectionMode="checkbox"
                   selection={selectedWarranties}
                   onSelectionChange={(e) => setSelectedWarranties(e.value)}
-                  dataKey="id" />
-                
+                  dataKey="id"
+                />
               </div>
             </div>
           </div>
@@ -273,210 +204,10 @@ const Warranty = () => {
         </div>
         <CommonFooter />
       </div>
-
-      {/* Add Warranty */}
-      <div className="modal fade" id="add-units">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="page-wrapper-new p-0">
-              <div className="content">
-                <div className="modal-header">
-                  <div className="page-title">
-                    <h4>Add Warrranty</h4>
-                  </div>
-                  <button
-                    type="button"
-                    className="close bg-danger text-white fs-16"
-                    data-bs-dismiss="modal"
-                    aria-label="Close">
-                    
-                    <span aria-hidden="true">×</span>
-                  </button>
-                </div>
-                <div className="modal-body">
-                  <form action="warranty.html">
-                    <div className="mb-3">
-                      <label className="form-label">
-                        Warranty<span className="text-danger ms-1">*</span>
-                      </label>
-                      <input type="text" className="form-control" />
-                    </div>
-                    <div className="row">
-                      <div className="col-lg-6">
-                        <div className="mb-3">
-                          <label className="form-label">
-                            Duration<span className="text-danger ms-1">*</span>
-                          </label>
-                          <input type="text" className="form-control" />
-                        </div>
-                      </div>
-                      <div className="col-lg-6">
-                        <div className="mb-3">
-                          <label className="form-label">
-                            Period<span className="text-danger ms-1">*</span>
-                          </label>
-                          <CommonSelect
-                            className="w-100"
-                            options={Period}
-                            value={selectedPeriod}
-                            onChange={(e) => setSelectedPeriod(e.value)}
-                            placeholder="Choose"
-                            filter={false} />
-                          
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="mb-3">
-                          <label className="form-label">
-                            Description
-                            <span className="text-danger ms-1">*</span>
-                          </label>
-                          <Editor
-                            value={text}
-                            onTextChange={(e) => setText(e.htmlValue)}
-                            style={{ height: "200px" }} />
-                          
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mb-0">
-                      <div className="status-toggle modal-status d-flex justify-content-between align-items-center">
-                        <span className="status-label">Status</span>
-                        <input type="checkbox" id="user2" className="check" />
-                        <label htmlFor="user2" className="checktoggle" />
-                      </div>
-                    </div>
-                  </form>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
-                    data-bs-dismiss="modal">
-                    
-                    Cancel
-                  </button>
-                  <Link
-                    to="#"
-                    className="btn btn-primary fs-13 fw-medium p-2 px-3"
-                    data-bs-dismiss="modal">
-                    
-                    Add Warranty
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* /Add Warranty */}
-      {/* Edit Warranty */}
-      <div className="modal fade" id="edit-units">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="page-wrapper-new p-0">
-              <div className="content">
-                <div className="modal-header">
-                  <div className="page-title">
-                    <h4>Edit Warrranty</h4>
-                  </div>
-                  <button
-                    type="button"
-                    className="close bg-danger text-white fs-16"
-                    data-bs-dismiss="modal"
-                    aria-label="Close">
-                    
-                    <span aria-hidden="true">×</span>
-                  </button>
-                </div>
-                <div className="modal-body">
-                  <form>
-                    <div className="mb-3">
-                      <label className="form-label">
-                        Warranty<span className="text-danger ms-1">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="Replacement Warranty" />
-                      
-                    </div>
-                    <div className="row">
-                      <div className="col-lg-6">
-                        <div className="mb-3">
-                          <label className="form-label">
-                            Duration<span className="text-danger ms-1">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            defaultValue={2} />
-                          
-                        </div>
-                      </div>
-                      <div className="col-lg-6">
-                        <div className="mb-3">
-                          <label className="form-label">
-                            Period<span className="text-danger ms-1">*</span>
-                          </label>
-                          <CommonSelect
-                            className="w-100"
-                            options={Period}
-                            value={selectedPeriod}
-                            onChange={(e) => setSelectedPeriod(e.value)}
-                            placeholder="Choose"
-                            filter={false} />
-                          
-                        </div>
-                      </div>
-                      <div className="col-lg-12">
-                        <div className="mb-3">
-                          <label className="form-label">
-                            Description
-                            <span className="text-danger ms-1">*</span>
-                          </label>
-                          <Editor
-                            value={text}
-                            onTextChange={(e) => setText(e.htmlValue)}
-                            style={{ height: "200px" }} />
-                          
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mb-0">
-                      <div className="status-toggle modal-status d-flex justify-content-between align-items-center">
-                        <span className="status-label">Status</span>
-                        <input type="checkbox" id="user3" className="check" />
-                        <label htmlFor="user3" className="checktoggle" />
-                      </div>
-                    </div>
-                  </form>
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn me-2 btn-secondary fs-13 fw-medium p-2 px-3 shadow-none"
-                    data-bs-dismiss="modal">
-                    
-                    Cancel
-                  </button>
-                  <Link
-                    to="#"
-                    className="btn btn-primary fs-13 fw-medium p-2 px-3"
-                    data-bs-dismiss="modal">
-                    
-                    Save Changes
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       {/* /Edit Warranty */}
       <DeleteModal />
-    </>);
-
+    </>
+  );
 };
 
 export default Warranty;

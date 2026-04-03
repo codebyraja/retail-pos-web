@@ -9,6 +9,19 @@ export const alphaNumeric = /^[a-zA-Z0-9 ]+$/;
 export const onlyAlphabet = /^[A-Za-z\s]+$/;
 export const COMPANYNAMELENGTH = 100;
 
+export const generateSlug = (name) => {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "");
+};
+
+export const generateSKU = () => {
+  const random = Math.floor(1000 + Math.random() * 9000);
+  return `SKU-${Date.now().toString().slice(-5)}-${random}`;
+};
+
 
 export const OnlyAllowLetters = (event) => {
   const allowedKeys = [

@@ -1,13 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { all_routes } from "../../routes/all_routes";
-import CounterThree from "../../components/counter/counterThree";
 import RefreshIcon from "../../components/tooltip-content/refresh";
 import CollapesIcon from "../../components/tooltip-content/collapes";
-import AddVariant from "../../core/modals/inventory/addvariant";
-import AddVarientNew from "../../core/modals/inventory/addVarientNew";
-import { phoneAdd1, phoneAdd2 } from "../../utils/imagepath";
-import CommonChipsInput from "../../components/chip";
 import CommonDatePicker from "../../components/date-picker/common-date-picker";
 import CommonSelect from "../../components/select/common-select";
 import DeleteModal from "../../components/delete-modal";
@@ -16,14 +11,22 @@ import useAppModal from "../../core/common/modal/useAppModal";
 import { MODAL_TYPES } from "../../routes/modal_root/modalTypes";
 import { api_url } from "../../environment";
 import Loader from "../../components/loader/Loader";
+import { productFormSchema } from "../../core/forms/formSchemas";
+import { generateSKU, generateSlug } from "../../utils/constants";
+import useForm from "../../core/hooks/useForm";
 
 const AddProduct = () => {
+  const { form, setForm, handleChange } = useForm(productFormSchema);
+  const [customFields, setCustomFields] = useState({
+    warranty: false,
+    manufacturer: false,
+    expiry: false,
+  });
   const [loading, setLoading] = useState(false);
   const { open } = useAppModal();
   const route = all_routes;
   const [tags, setTags] = useState(["Red", "Black"]);
-  const [product, setProduct] = useState(false);
-  const [product2, setProduct2] = useState(true);
+  const [showVariantTable, setShowVariantTable] = useState(true);
   const [date1, setDate1] = useState(new Date());
   const [date2, setDate2] = useState(new Date());
   const [selectedStore, setSelectedStore] = useState(null);
@@ -37,23 +40,91 @@ const AddProduct = () => {
   const [selectedTaxType, setSelectedTaxType] = useState(null);
   const [selectedDiscountType, setSelectedDiscountType] = useState(null);
   const [selectedWarranty, setSelectedWarranty] = useState(null);
+  const [selectedAttribute, setSelectedAttribute] = useState(null);
   const [text, setText] = useState("");
   const [categories, setCategories] = useState([]);
+  const [stores, setStores] = useState([]);
+  const [warehouses, setWarehouses] = useState([]);
   const [allSubCategories, setAllSubCategories] = useState([]);
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [units, setUnits] = useState([]);
+  const [productType, setProductType] = useState("single");
+  const [variantAttributes, setVariantAttributes] = useState([]); // dropdown
+  const [variants, setVariants] = useState([]); // table rows
+  const [selectedValues, setSelectedValues] = useState([]);
+  const [images, setImages] = useState([]);
+
+  const handleCustomField = (name) => {
+    setCustomFields((prev) => ({
+      ...prev,
+      [name]: !prev[name],
+    }));
+  };
 
   useEffect(() => {
+    return () => {
+      images.forEach((img) => URL.revokeObjectURL(img.url));
+    };
+  }, [images]);
+
+  const fetchVariants = async () => {
+    const res = await fetch(`${api_url}/GetMaster?masterType=10`);
+    const json = await res.json();
+
+    console.log("Variant Attributes data:", json);
+
+    const data = json?.data?.map((x) => ({
+      label: x.name,
+      value: x.code,
+      values: x.values.split(","),
+    }));
+
+    setVariantAttributes(data);
+  };
+
+  // useEffect(() => {
+  //   if (selectedAttribute) {
+  //     const attr = variantAttributes.find((x) => x.value === selectedAttribute);
+
+  //     if (attr) {
+  //       const generated = attr.values.map((v, i) => ({
+  //         name: attr.label,
+  //         value: v,
+  //         sku: `SKU-${Date.now()}-${i}`,
+  //         qty: 0,
+  //         price: 0,
+  //       }));
+
+  //       setVariants(generated);
+  //       setProduct(true); // table show
+  //     }
+  //   }
+  // }, [selectedAttribute, variantAttributes]);
+
+  console.log("variantAttributes", variantAttributes);
+
+  console.log("form", form);
+
+  useEffect(() => {
+    setForm((prev) => ({
+      ...prev,
+      sku: generateSKU(),
+    }));
     loadMasters();
+    fetchVariants();
   }, []);
 
   const loadMasters = async () => {
+    const store = await getMasters(11);
+    const warehouse = await getMasters(12);
     const cat = await getMasters(5);
     const subCat = await getMasters(4);
     const brand = await getMasters(7);
     const unit = await getMasters(8);
 
+    setWarehouses(warehouse);
+    setStores(store);
     setCategories(cat);
     setAllSubCategories(subCat);
     setBrands(brand);
@@ -95,66 +166,51 @@ const AddProduct = () => {
     setSelectedSubCategory(null);
   };
 
-  const store = [
-    { value: "choose", label: "Choose" },
-    { value: "thomas", label: "Thomas" },
-    { value: "rasmussen", label: "Rasmussen" },
-    { value: "fredJohn", label: "Fred John" },
-  ];
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const preview = files.map((file) => ({
+      id: Date.now() + Math.random(), // unique id
+      file,
+      url: URL.createObjectURL(file),
+    }));
+    setImages((prev) => [...prev, ...preview]);
+  };
 
-  const warehouse = [
-    { value: "choose", label: "Choose" },
-    { value: "legendary", label: "Legendary" },
-    { value: "determined", label: "Determined" },
-    { value: "sincere", label: "Sincere" },
-  ];
-
-  // const category = [
-  //   { value: "choose", label: "Choose" },
-  //   { value: "lenovo", label: "Lenovo" },
-  //   { value: "electronics", label: "Electronics" },
-  // ];
-
-  // const subcategory = [
-  //   { value: "choose", label: "Choose" },
-  //   { value: "lenovo", label: "Lenovo" },
-  //   { value: "electronics", label: "Electronics" },
-  // ];
-
-  // const brand = [
-  //   { value: "choose", label: "Choose" },
-  //   { value: "nike", label: "Nike" },
-  //   { value: "bolt", label: "Bolt" },
-  // ];
-
-  // const unit = [
-  //   { value: "choose", label: "Choose" },
-  //   { value: "kg", label: "Kg" },
-  //   { value: "pc", label: "Pc" },
-  // ];
+  const handleImageRemove = (id) => {
+    setImages((prev) => {
+      const imgToRemove = prev.find((img) => img.id === id);
+      if (imgToRemove) {
+        URL.revokeObjectURL(imgToRemove.url);
+      }
+      return prev.filter((img) => img.id !== id);
+    });
+  };
 
   const sellingtype = [
-    { value: "choose", label: "Choose" },
-    { value: "transactionalSelling", label: "Transactional selling" },
-    { value: "solutionSelling", label: "Solution selling" },
+    { value: "single", label: "Single Product" },
+    { value: "variant", label: "Variant Product" },
+    { value: "service", label: "Service" },
+    { value: "combo", label: "Combo / Bundle" },
   ];
 
   const barcodesymbol = [
-    { value: "choose", label: "Choose" },
-    { value: "code34", label: "Code34" },
-    { value: "code35", label: "Code35" },
-    { value: "code36", label: "Code36" },
+    { value: "code128", label: "Code128" },
+    { value: "ean13", label: "EAN-13" },
+    { value: "ean8", label: "EAN-8" },
+    { value: "upc", label: "UPC" },
+    { value: "code39", label: "Code39" },
+    { value: "itf14", label: "ITF-14" },
   ];
 
   const taxtype = [
-    { value: "exclusive", label: "Exclusive" },
-    { value: "salesTax", label: "Sales Tax" },
+    { label: "Exclusive", value: "exclusive" },
+    { label: "Inclusive", value: "inclusive" },
+    { label: "No Tax", value: "none" },
   ];
 
-  const discounttype = [
-    { value: "choose", label: "Choose" },
-    { value: "percentage", label: "Percentage" },
-    { value: "cash", label: "Cash" },
+  const discountType = [
+    { label: "Percentage (%)", value: "percent" },
+    { label: "Flat (₹)", value: "flat" },
   ];
 
   const warrenty = [
@@ -167,16 +223,54 @@ const AddProduct = () => {
     },
   ];
 
-  const [isImageVisible, setIsImageVisible] = useState(true);
+  // const selectedAttr = variantAttributes.find(
+  //   (x) => x.value === selectedAttribute,
+  // );
 
-  const handleRemoveProduct = () => {
-    setIsImageVisible(false);
-  };
-  const [isImageVisible1, setIsImageVisible1] = useState(true);
+  const selectedAttr = useMemo(() => {
+    return variantAttributes.find((x) => x.value === selectedAttribute);
+  }, [variantAttributes, selectedAttribute]);
 
-  const handleRemoveProduct1 = () => {
-    setIsImageVisible1(false);
-  };
+  const valueOptions =
+    selectedAttr?.values.map((v) => ({
+      label: v,
+      value: v,
+    })) || [];
+
+  // const generateVariants = (values) => {
+  //   return values.map((v, i) => ({
+  //     name: v,
+  //     sku: `SKU-${Date.now()}-${i}`,
+  //     qty: 0,
+  //     price: 0,
+  //   }));
+  // };
+
+  useEffect(() => {
+    if (
+      Array.isArray(selectedValues) &&
+      selectedValues.length > 0 &&
+      selectedAttr
+    ) {
+      setVariants((prev) => {
+        return selectedValues?.map((v, i) => {
+          const existing = prev.find((item) => item.value === v);
+
+          return {
+            name: selectedAttr.label,
+            value: v,
+            // sku: existing?.sku || `SKU-${v}-${i}`,
+            sku: existing?.sku || `SKU-${selectedAttr.value}-${v}`,
+            qty: existing?.qty || 0,
+            price: existing?.price || 0,
+          };
+        });
+      });
+    } else {
+      setVariants([]);
+    }
+  }, [selectedValues, selectedAttr]);
+
   return (
     <>
       {loading && <Loader loading />}
@@ -241,15 +335,19 @@ const AddProduct = () => {
                             </label>
                             <input
                               type="text"
+                              name="alias"
                               className="form-control list"
-                              disabled
+                              value={form.alias}
+                              onChange={handleChange}
+                              placeholder=""
+                              required
                             />
-                            <button
+                            {/* <button
                               type="submit"
                               className="btn btn-primaryadd"
                             >
                               Generate
-                            </button>
+                            </button> */}
                           </div>
                         </div>
                         <div className="col-sm-4 col-12">
@@ -259,7 +357,7 @@ const AddProduct = () => {
                             </label>
                             <CommonSelect
                               className="w-100"
-                              options={store}
+                              options={stores}
                               value={selectedStore}
                               onChange={(e) => setSelectedStore(e.value)}
                               placeholder="Choose"
@@ -275,7 +373,7 @@ const AddProduct = () => {
                             </label>
                             <CommonSelect
                               className="w-100"
-                              options={warehouse}
+                              options={warehouses}
                               value={selectedWarehouse}
                               onChange={(e) => setSelectedWarehouse(e.value)}
                               placeholder="Choose"
@@ -291,7 +389,20 @@ const AddProduct = () => {
                               Product Name
                               <span className="text-danger ms-1">*</span>
                             </label>
-                            <input type="text" className="form-control" />
+                            <input
+                              type="text"
+                              name="name"
+                              className="form-control"
+                              value={form?.name}
+                              onChange={(e) => {
+                                const name = e.target.value;
+                                setForm((prev) => ({
+                                  ...prev,
+                                  name,
+                                  slug: generateSlug(name),
+                                }));
+                              }}
+                            />
                           </div>
                         </div>
                         <div className="col-sm-4 col-12">
@@ -299,7 +410,13 @@ const AddProduct = () => {
                             <label className="form-label">
                               Slug<span className="text-danger ms-1">*</span>
                             </label>
-                            <input type="text" className="form-control" />
+                            <input
+                              type="text"
+                              name="slug"
+                              className="form-control"
+                              value={form?.slug}
+                              readOnly
+                            />
                           </div>
                         </div>
                         <div className="col-sm-4 col-12">
@@ -307,10 +424,24 @@ const AddProduct = () => {
                             <label className="form-label">
                               SKU<span className="text-danger ms-1">*</span>
                             </label>
-                            <input type="text" className="form-control list" />
+                            <input
+                              type="text"
+                              name="sku"
+                              className="form-control list"
+                              value={form.sku}
+                              onChange={(e) =>
+                                setForm({ ...form, sku: e.target.value })
+                              }
+                            />
                             <button
                               type="button"
                               className="btn btn-primaryadd"
+                              onClick={() =>
+                                setForm((prev) => ({
+                                  ...prev,
+                                  sku: generateSKU(),
+                                }))
+                              }
                             >
                               Generate
                             </button>
@@ -503,8 +634,10 @@ const AddProduct = () => {
                               >
                                 <input
                                   type="radio"
+                                  checked={productType === "single"}
                                   className="form-control"
-                                  name="payment"
+                                  name="single"
+                                  onChange={() => setProductType("single")}
                                 />
                                 <span className="checkmark" /> Single Product
                               </span>
@@ -521,8 +654,10 @@ const AddProduct = () => {
                               >
                                 <input
                                   type="radio"
+                                  checked={productType === "variant"}
                                   className="form-control"
-                                  name="sign"
+                                  onChange={() => setProductType("variant")}
+                                  name="variant"
                                 />
                                 <span className="checkmark" /> Variable Product
                               </span>
@@ -583,7 +718,7 @@ const AddProduct = () => {
                                   </label>
                                   <CommonSelect
                                     className="w-100"
-                                    options={discounttype}
+                                    options={discountType}
                                     value={selectedDiscountType}
                                     onChange={(e) =>
                                       setSelectedDiscountType(e.value)
@@ -629,198 +764,137 @@ const AddProduct = () => {
                                 </label>
                                 <div className="row">
                                   <div className="col-lg-10 col-sm-10 col-10">
-                                    <select
-                                      className="form-control variant-select select-option"
-                                      id="colorSelect"
-                                      onChange={() => setProduct(true)}
-                                    >
-                                      <option>Choose</option>
-                                      <option>Color</option>
-                                      <option value="red">Red</option>
-                                      <option value="black">Black</option>
-                                    </select>
+                                    <CommonSelect
+                                      options={variantAttributes}
+                                      value={selectedAttribute}
+                                      onChange={(e) => {
+                                        setSelectedAttribute(e.value);
+                                        setSelectedValues([]); // reset
+                                        setVariants([]); // reset
+                                      }}
+                                    />
                                   </div>
                                   <div className="col-lg-2 col-sm-2 col-2 ps-0">
                                     <div className="add-icon tab">
                                       <Link
                                         to="#"
                                         className="btn btn-filter"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#add-units"
+                                        onClick={() =>
+                                          open(MODAL_TYPES.VARIANT, {
+                                            data: null,
+                                            onSucess: null,
+                                          })
+                                        }
                                       >
                                         <i className="feather feather-plus-circle" />
                                       </Link>
                                     </div>
                                   </div>
                                 </div>
+                                {selectedAttr && (
+                                  <div className=" col-lg-10 col-sm-10 col-10 mt-2">
+                                    <label className="form-label">
+                                      Select Values
+                                    </label>
+                                    <CommonSelect
+                                      options={valueOptions}
+                                      value={selectedValues}
+                                      onChange={(e) =>
+                                        setSelectedValues(e.value)
+                                      }
+                                      multiple
+                                    />
+                                  </div>
+                                )}
                               </div>
-                              {product && (
-                                <div
-                                  className={`selected-hide-color ${
-                                    product2 ? "d-block" : ""
-                                  } `}
-                                  id="input-show"
-                                >
-                                  <label className="form-label">
-                                    Variant Attribute{" "}
-                                    <span className="text-danger ms-1">*</span>
-                                  </label>
-                                </div>
-                              )}
+                              {productType === "variant" &&
+                                variants.length > 0 && (
+                                  <div
+                                    className={`selected-hide-color ${
+                                      showVariantTable ? "d-block" : ""
+                                    } `}
+                                    id="input-show"
+                                  >
+                                    <label className="form-label">
+                                      Variant Attribute{" "}
+                                      <span className="text-danger ms-1">
+                                        *
+                                      </span>
+                                    </label>
+                                  </div>
+                                )}
                             </div>
                           </div>
-                          {product && (
-                            <div
-                              className="modal-body-table variant-table d-block"
-                              id="variant-table"
-                            >
+                          {variants.length > 0 && (
+                            <div className="modal-body-table variant-table d-block">
                               <div className="table-responsive">
                                 <table className="table">
                                   <thead>
                                     <tr>
-                                      <th>Variantion</th>
-                                      <th>Variant Value</th>
+                                      <th>Variant</th>
+                                      <th>Value</th>
                                       <th>SKU</th>
                                       <th>Quantity</th>
                                       <th>Price</th>
-                                      <th className="no-sort" />
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    <tr>
-                                      <td>
-                                        <div className="add-product">
+                                    {variants.map((v, i) => (
+                                      <tr key={v.value}>
+                                        <td>
                                           <input
-                                            type="text"
                                             className="form-control"
-                                            defaultValue="color"
+                                            value={v.name}
+                                            readOnly
                                           />
-                                        </div>
-                                      </td>
-                                      <td>
-                                        <div className="add-product">
+                                        </td>
+
+                                        <td>
                                           <input
-                                            type="text"
                                             className="form-control"
-                                            defaultValue="red"
+                                            value={v.value}
+                                            readOnly
                                           />
-                                        </div>
-                                      </td>
-                                      <td>
-                                        <div className="add-product">
+                                        </td>
+
+                                        <td>
                                           <input
-                                            type="text"
                                             className="form-control"
-                                            defaultValue={1234}
+                                            value={v.sku}
+                                            onChange={(e) => {
+                                              const updated = [...variants];
+                                              updated[i].sku = e.target.value;
+                                              setVariants(updated);
+                                            }}
                                           />
-                                        </div>
-                                      </td>
-                                      <td>
-                                        <CounterThree />
-                                      </td>
-                                      <td>
-                                        <div className="add-product">
+                                        </td>
+
+                                        <td>
                                           <input
-                                            type="text"
+                                            type="number"
                                             className="form-control"
-                                            defaultValue={50000}
+                                            value={v.qty}
+                                            onChange={(e) => {
+                                              const updated = [...variants];
+                                              updated[i].qty = e.target.value;
+                                              setVariants(updated);
+                                            }}
                                           />
-                                        </div>
-                                      </td>
-                                      <td className="action-table-data">
-                                        <div className="edit-delete-action">
-                                          <div className="input-block add-lists">
-                                            <label className="checkboxs">
-                                              <input type="checkbox" />
-                                              <span className="checkmarks" />
-                                            </label>
-                                          </div>
-                                          <Link
-                                            className="me-2 p-2"
-                                            to="#"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#add-variation"
-                                          >
-                                            <i className="feather icon-plus feather-edit" />
-                                          </Link>
-                                          <Link
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#delete-modal"
-                                            className="p-2"
-                                            to="#"
-                                          >
-                                            <i className="feather icon-trash-2" />
-                                          </Link>
-                                        </div>
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>
-                                        <div className="add-product">
+                                        </td>
+
+                                        <td>
                                           <input
-                                            type="text"
                                             className="form-control"
-                                            defaultValue="color"
+                                            value={v.price}
+                                            onChange={(e) => {
+                                              const updated = [...variants];
+                                              updated[i].price = e.target.value;
+                                              setVariants(updated);
+                                            }}
                                           />
-                                        </div>
-                                      </td>
-                                      <td>
-                                        <div className="add-product">
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            defaultValue="black"
-                                          />
-                                        </div>
-                                      </td>
-                                      <td>
-                                        <div className="add-product">
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            defaultValue={2345}
-                                          />
-                                        </div>
-                                      </td>
-                                      <td>
-                                        <CounterThree />
-                                      </td>
-                                      <td>
-                                        <div className="add-product">
-                                          <input
-                                            type="text"
-                                            className="form-control"
-                                            defaultValue={50000}
-                                          />
-                                        </div>
-                                      </td>
-                                      <td className="action-table-data">
-                                        <div className="edit-delete-action">
-                                          <div className="input-block add-lists">
-                                            <label className="checkboxs">
-                                              <input type="checkbox" />
-                                              <span className="checkmarks" />
-                                            </label>
-                                          </div>
-                                          <Link
-                                            className="me-2 p-2"
-                                            to="#"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#edit-units"
-                                          >
-                                            <i className="feather icon-plus feather-edit" />
-                                          </Link>
-                                          <Link
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#delete-modal"
-                                            className="p-2"
-                                            to="#"
-                                          >
-                                            <i className="feather icon-trash-2" />
-                                          </Link>
-                                        </div>
-                                      </td>
-                                    </tr>
+                                        </td>
+                                      </tr>
+                                    ))}
                                   </tbody>
                                 </table>
                               </div>
@@ -859,35 +933,31 @@ const AddProduct = () => {
                           <div className="add-choosen">
                             <div className="mb-3">
                               <div className="image-upload">
-                                <input type="file" />
+                                <input
+                                  type="file"
+                                  multiple
+                                  onChange={handleImageChange}
+                                />
                                 <div className="image-uploads">
                                   <i className="feather icon-plus-circle plus-down-add me-0" />
                                   <h4>Add Images</h4>
                                 </div>
                               </div>
                             </div>
-                            {isImageVisible1 && (
-                              <div className="phone-img">
-                                <img src={phoneAdd2} alt="image" />
-                                <Link to="#">
-                                  <i
-                                    className="feather icon-x x-square-add remove-product"
-                                    onClick={handleRemoveProduct1}
-                                  />
-                                </Link>
-                              </div>
-                            )}
-                            {isImageVisible && (
-                              <div className="phone-img">
-                                <img src={phoneAdd1} alt="image" />
-                                <Link to="#">
-                                  <i
-                                    className="feather icon-x x-square-add remove-product"
-                                    onClick={handleRemoveProduct}
-                                  />
-                                </Link>
-                              </div>
-                            )}
+                            <div className="phone-img-wrapper">
+                              {images.map((img) => (
+                                <div className="phone-img" key={img.id}>
+                                  <img src={img.url} alt="preview" />
+
+                                  <Link to="#">
+                                    <i
+                                      className="feather icon-x x-square-add remove-product"
+                                      onClick={() => handleImageRemove(img.id)}
+                                    />
+                                  </Link>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -925,7 +995,8 @@ const AddProduct = () => {
                                 className="form-check-input"
                                 type="checkbox"
                                 id="warranties"
-                                defaultValue="option1"
+                                checked={customFields.warranty}
+                                onChange={() => handleCustomField("warranty")}
                               />
 
                               <label
@@ -940,7 +1011,10 @@ const AddProduct = () => {
                                 className="form-check-input"
                                 type="checkbox"
                                 id="manufacturer"
-                                defaultValue="option2"
+                                checked={customFields.manufacturer}
+                                onChange={() =>
+                                  handleCustomField("manufacturer")
+                                }
                               />
 
                               <label
@@ -955,7 +1029,8 @@ const AddProduct = () => {
                                 className="form-check-input"
                                 type="checkbox"
                                 id="expiry"
-                                defaultValue="option2"
+                                checked={customFields.expiry}
+                                onChange={() => handleCustomField("expiry")}
                               />
 
                               <label
@@ -968,65 +1043,80 @@ const AddProduct = () => {
                           </div>
                         </div>
                         <div className="row">
-                          <div className="col-sm-6 col-12">
-                            <div className="mb-3">
-                              <label className="form-label">
-                                Warranty
-                                <span className="text-danger ms-1">*</span>
-                              </label>
-                              <CommonSelect
-                                className="w-100"
-                                options={warrenty}
-                                value={selectedWarranty}
-                                onChange={(e) => setSelectedWarranty(e.value)}
-                                placeholder="Choose"
-                                filter={false}
-                              />
+                          {customFields.warranty && (
+                            <div className="col-sm-6 col-12">
+                              <div className="mb-3">
+                                <label className="form-label">
+                                  Warranty
+                                  <span className="text-danger ms-1">*</span>
+                                </label>
+                                <CommonSelect
+                                  className="w-100"
+                                  options={warrenty}
+                                  value={selectedWarranty}
+                                  onChange={(e) => setSelectedWarranty(e.value)}
+                                  placeholder="Choose"
+                                  filter={false}
+                                />
+                              </div>
                             </div>
-                          </div>
-                          <div className="col-sm-6 col-12">
-                            <div className="mb-3 add-product">
-                              <label className="form-label">
-                                Manufacturer
-                                <span className="text-danger ms-1">*</span>
-                              </label>
-                              <input type="text" className="form-control" />
+                          )}
+                          {customFields.manufacturer && (
+                            <div className="col-sm-6 col-12">
+                              <div className="mb-3 add-product">
+                                <label className="form-label">
+                                  Manufacturer
+                                  <span className="text-danger ms-1">*</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  name="manufacturer"
+                                  className="form-control"
+                                  value={form.manufacturer}
+                                  onChange={handleChange}
+                                />
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
+
                         <div className="row">
-                          <div className="col-sm-6 col-12">
-                            <div className="mb-3">
-                              <label className="form-label">
-                                Manufactured Date
-                                <span className="text-danger ms-1">*</span>
-                              </label>
-                              <div className="input-groupicon calender-input">
-                                <i className="feather icon-calendar info-img" />
-                                <CommonDatePicker
-                                  value={date1}
-                                  onChange={setDate1}
-                                  className="w-100"
-                                />
+                          {customFields.expiry && (
+                            <>
+                              <div className="col-sm-6 col-12">
+                                <div className="mb-3">
+                                  <label className="form-label">
+                                    Manufactured Date
+                                    <span className="text-danger ms-1">*</span>
+                                  </label>
+                                  <div className="input-groupicon calender-input">
+                                    <i className="feather icon-calendar info-img" />
+                                    <CommonDatePicker
+                                      value={date1}
+                                      onChange={setDate1}
+                                      className="w-100"
+                                    />
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                          <div className="col-sm-6 col-12">
-                            <div className="mb-3">
-                              <label className="form-label">
-                                Expiry On
-                                <span className="text-danger ms-1">*</span>
-                              </label>
-                              <div className="input-groupicon calender-input">
-                                <i className="feather icon-calendar info-img" />
-                                <CommonDatePicker
-                                  value={date2}
-                                  onChange={setDate2}
-                                  className="w-100"
-                                />
+                              <div className="col-sm-6 col-12">
+                                <div className="mb-3">
+                                  <label className="form-label">
+                                    Expiry On
+                                    <span className="text-danger ms-1">*</span>
+                                  </label>
+                                  <div className="input-groupicon calender-input">
+                                    <i className="feather icon-calendar info-img" />
+                                    <CommonDatePicker
+                                      value={date2}
+                                      onChange={setDate2}
+                                      className="w-100"
+                                    />
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1063,8 +1153,6 @@ const AddProduct = () => {
           </p>
         </div>
       </div>
-      <AddVariant />
-      <AddVarientNew />
       <DeleteModal />
     </>
   );
