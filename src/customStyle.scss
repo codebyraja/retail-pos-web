@@ -28,6 +28,26 @@ $__basecolor: #2c3038;
   border-radius: 4px;
 }
 
+/* PrimeReact Dropdown Panel */
+body .p-dropdown-panel {
+  z-index: 10000 !important;
+}
+
+/* MultiSelect panel */
+body .p-multiselect-panel {
+  z-index: 10000 !important;
+}
+
+/* Overlay fix */
+body .p-component-overlay {
+  z-index: 9999 !important;
+}
+
+// .modal-dialog,
+// .modal-content {
+//   overflow: visible !important;
+// }
+
 
 .worldmap__figure-container {
   height: 247px !important;

@@ -14,6 +14,7 @@ import Loader from "../../components/loader/Loader";
 import { productFormSchema } from "../../core/forms/formSchemas";
 import { generateSKU, generateSlug } from "../../utils/constants";
 import useForm from "../../core/hooks/useForm";
+import toast from "react-hot-toast";
 
 const AddProduct = () => {
   const { form, setForm, handleChange } = useForm(productFormSchema);
@@ -49,7 +50,7 @@ const AddProduct = () => {
   const [filteredSubCategories, setFilteredSubCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [units, setUnits] = useState([]);
-  const [productType, setProductType] = useState("single");
+  const [productType, setProductType] = useState(1); // 1: single, 2: variant
   const [variantAttributes, setVariantAttributes] = useState([]); // dropdown
   const [variants, setVariants] = useState([]); // table rows
   const [selectedValues, setSelectedValues] = useState([]);
@@ -101,10 +102,6 @@ const AddProduct = () => {
   //     }
   //   }
   // }, [selectedAttribute, variantAttributes]);
-
-  console.log("variantAttributes", variantAttributes);
-
-  console.log("form", form);
 
   useEffect(() => {
     setForm((prev) => ({
@@ -187,30 +184,31 @@ const AddProduct = () => {
   };
 
   const sellingtype = [
-    { value: "single", label: "Single Product" },
-    { value: "variant", label: "Variant Product" },
-    { value: "service", label: "Service" },
-    { value: "combo", label: "Combo / Bundle" },
+    { value: 1, label: "Single" },
+    { value: 2, label: "Variant" },
+    { value: 3, label: "Service" },
+    { value: 4, label: "Combo / Bundle" },
   ];
 
   const barcodesymbol = [
-    { value: "code128", label: "Code128" },
-    { value: "ean13", label: "EAN-13" },
-    { value: "ean8", label: "EAN-8" },
-    { value: "upc", label: "UPC" },
-    { value: "code39", label: "Code39" },
-    { value: "itf14", label: "ITF-14" },
+    { value: 1, label: "Code128" },
+    { value: 2, label: "EAN-13" },
+    { value: 3, label: "EAN-8" },
+    { value: 4, label: "UPC" },
+    { value: 5, label: "Code39" },
+    { value: 6, label: "ITF-14" },
   ];
 
   const taxtype = [
-    { label: "Exclusive", value: "exclusive" },
-    { label: "Inclusive", value: "inclusive" },
-    { label: "No Tax", value: "none" },
+    { label: "No Tax", value: 0 },
+    { label: "Exclusive", value: 1 },
+    { label: "Inclusive", value: 2 },
   ];
 
   const discountType = [
-    { label: "Percentage (%)", value: "percent" },
-    { label: "Flat (₹)", value: "flat" },
+    { label: "No Discount", value: 0 },
+    { label: "Percentage (%)", value: 1 },
+    { label: "Flat (₹)", value: 2 },
   ];
 
   const warrenty = [
@@ -271,6 +269,97 @@ const AddProduct = () => {
     }
   }, [selectedValues, selectedAttr]);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+
+      // 🔹 BASIC MASTER
+      formData.append("Code", 0);
+      formData.append("MasterType", 6);
+      formData.append("Name", form.name);
+      formData.append("Alias", form.alias);
+      formData.append("PrintName", form.slug);
+      formData.append("ParentGrp", selectedSubCategory || 0);
+      formData.append("C1", form.sku || "");
+
+      // 🔹 STORE / WAREHOUSE
+      formData.append("CM1", selectedStore || 0);
+      formData.append("CM2", selectedWarehouse || 0);
+
+      // 🔹 BRAND / UNIT / TYPES
+      formData.append("CM3", selectedBrand || 0);
+      formData.append("CM4", selectedUnit || 0);
+      formData.append("CM5", selectedTaxType || 0);
+      formData.append("CM6", selectedDiscountType || 0);
+      formData.append("CM7", selectedSellingType || 0);
+      formData.append("CM8", selectedBarcodeSymbol || 0);
+      formData.append("CM9", productType || 0);
+
+      // 🔹 PRICING
+      formData.append("D1", form.qty || 0);
+      formData.append("D2", form.price || 0);
+      formData.append("D3", form.discountValue || 0);
+      formData.append("D4", form.qtyAlt || 0);
+      formData.append("D5", form.priceAlt || 0);
+
+      // 🔹 DESCRIPTION
+      formData.append("Remark", text || "");
+      const variantJson = variants.map((v) => ({
+        Attribute: v.name,
+        Value: v.value,
+        SKU: v.sku,
+        Qty: Number(v.qty) || 0,
+        Price: Number(v.price) || 0,
+      }));
+
+      formData.append("variants", JSON.stringify(variantJson));
+      const customFieldJson =
+        customFields.warranty ||
+        customFields.manufacturer ||
+        customFields.expiry
+          ? {
+              Warranty: selectedWarranty || "",
+              Manufacturer: form.manufacturer || "",
+              ManufacturedDate: date1 ? date1.toISOString() : null,
+              ExpiryDate: date2 ? date2.toISOString() : null,
+            }
+          : null;
+
+      formData.append(
+        "customFields",
+        customFieldJson ? JSON.stringify(customFieldJson) : "",
+      );
+
+      formData.append("customFields", JSON.stringify(customFieldJson));
+
+      formData.append("images", JSON.stringify([]));
+      images.forEach((img) => {
+        formData.append("files", img.file);
+      });
+
+      const res = await fetch(`${api_url}/saveMaster`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      console.log("Response:", data);
+
+      if (data?.status === 1) {
+        toast.success(data?.msg);
+      } else {
+        toast.error(data?.msg || "Error");
+      }
+    } catch (err) {
+      toast.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       {loading && <Loader loading />}
@@ -297,7 +386,7 @@ const AddProduct = () => {
             </ul>
           </div>
           {/* /add */}
-          <form className="add-product-form">
+          <form className="add-product-form" onSubmit={handleSubmit}>
             <div className="add-product">
               <div
                 className="accordions-items-seperate"
@@ -339,8 +428,8 @@ const AddProduct = () => {
                               className="form-control list"
                               value={form.alias}
                               onChange={handleChange}
-                              placeholder=""
-                              required
+                              placeholder="108"
+                              disabled
                             />
                             {/* <button
                               type="submit"
@@ -634,10 +723,10 @@ const AddProduct = () => {
                               >
                                 <input
                                   type="radio"
-                                  checked={productType === "single"}
+                                  checked={productType === 1}
                                   className="form-control"
                                   name="single"
-                                  onChange={() => setProductType("single")}
+                                  onChange={() => setProductType(1)}
                                 />
                                 <span className="checkmark" /> Single Product
                               </span>
@@ -654,9 +743,9 @@ const AddProduct = () => {
                               >
                                 <input
                                   type="radio"
-                                  checked={productType === "variant"}
+                                  checked={productType === 2}
                                   className="form-control"
-                                  onChange={() => setProductType("variant")}
+                                  onChange={() => setProductType(2)}
                                   name="variant"
                                 />
                                 <span className="checkmark" /> Variable Product
@@ -680,7 +769,13 @@ const AddProduct = () => {
                                     Quantity
                                     <span className="text-danger ms-1">*</span>
                                   </label>
-                                  <input type="text" className="form-control" />
+                                  <input
+                                    type="text"
+                                    name="qty"
+                                    value={form.qty}
+                                    className="form-control"
+                                    onChange={handleChange}
+                                  />
                                 </div>
                               </div>
                               <div className="col-lg-4 col-sm-6 col-12">
@@ -689,7 +784,13 @@ const AddProduct = () => {
                                     Price
                                     <span className="text-danger ms-1">*</span>
                                   </label>
-                                  <input type="text" className="form-control" />
+                                  <input
+                                    type="text"
+                                    name="price"
+                                    value={form.price}
+                                    className="form-control"
+                                    onChange={handleChange}
+                                  />
                                 </div>
                               </div>
                               <div className="col-lg-4 col-sm-6 col-12">
@@ -734,7 +835,13 @@ const AddProduct = () => {
                                     Discount Value
                                     <span className="text-danger ms-1">*</span>
                                   </label>
-                                  <input className="form-control" type="text" />
+                                  <input
+                                    className="form-control"
+                                    name="discountValue"
+                                    value={form.discountValue}
+                                    type="text"
+                                    onChange={handleChange}
+                                  />
                                 </div>
                               </div>
                               <div className="col-lg-4 col-sm-6 col-12">
@@ -743,7 +850,13 @@ const AddProduct = () => {
                                     Quantity Alert
                                     <span className="text-danger ms-1">*</span>
                                   </label>
-                                  <input type="text" className="form-control" />
+                                  <input
+                                    type="text"
+                                    name="qtyAlt"
+                                    value={form.qtyAlt}
+                                    className="form-control"
+                                    onChange={handleChange}
+                                  />
                                 </div>
                               </div>
                             </div>

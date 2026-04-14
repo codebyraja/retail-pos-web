@@ -211,3 +211,4 @@ const Warranty = () => {
 };
 
 export default Warranty;
+

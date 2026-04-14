@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CommonFooter from "../../components/footer/commonFooter";
 import { all_routes } from "../../routes/all_routes";
@@ -16,26 +16,59 @@ const Products = () => {
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
   const [rows, setRows] = useState(10);
   const [_searchQuery, setSearchQuery] = useState(undefined);
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  // const [Category, setCategory] = useState([]);
+  // const [SubCategory, setSubCategory] = useState([]);
 
+  useEffect(() => {
+    fetchProducts();
+    // fetchCategories();
+    // fetchSubCategories();
+  }, []);
 
-  const handleSearch = (value) => {
-    setSearchQuery(value);
+  const fetchProducts = async () => {
+    setLoading(true);
+    
+    try {
+      const res = await fetch(`${api_url}/GetMaster?masterType=6`);
+      const json = await res.json();
+      console.log("Products data:", json);
+      const formattedData = json?.data?.map((row) => ({
+        code: row.code,
+        name: row.name,
+        category: row.category,
+        subCategory: row.subCategory,
+        createdBy: row.createdBy,
+        createdAt: row.createdAt,
+      }));
+      setProducts(formattedData);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
   };
-  const products = [
-  { value: "Bold V3.2", label: "Bold V3.2" },
-  { value: "Nike Jordan", label: "Nike Jordan" },
-  { value: "Iphone 14 Pro", label: "Iphone 14 Pro" }];
+
+  const fetchCategories = async () => {
+    setLoading(true);
+  // const products = [
+  //   { value: "Bold V3.2", label: "Bold V3.2" },
+  //   { value: "Nike Jordan", label: "Nike Jordan" },
+  //   { value: "Iphone 14 Pro", label: "Iphone 14 Pro" },
+  // ];
 
   const Category = [
-  { value: "Laptop", label: "Laptop" },
-  { value: "Electronics", label: "Electronics" },
-  { value: "Shoe", label: "Shoe" }];
+    { value: "Laptop", label: "Laptop" },
+    { value: "Electronics", label: "Electronics" },
+    { value: "Shoe", label: "Shoe" },
+  ];
 
   const SubCategory = [
-  { value: "Lenovo", label: "Lenovo" },
-  { value: "Bolt", label: "Bolt" },
-  { value: "Nike", label: "Nike" }];
-
+    { value: "Lenovo", label: "Lenovo" },
+    { value: "Bolt", label: "Bolt" },
+    { value: "Nike", label: "Nike" },
+  ];
 
   return (
     <div>
@@ -44,7 +77,7 @@ const Products = () => {
           <div className="page-header">
             <div className="add-item d-flex">
               <div className="page-title">
-                <h4 className="fw-bold">Product List</h4>
+                <h4 className="fw-bold">Product List333</h4>
                 <h6>Manage your products</h6>
               </div>
             </div>
@@ -60,8 +93,8 @@ const Products = () => {
                 to="#"
                 className="btn btn-primary color"
                 data-bs-toggle="modal"
-                data-bs-target="#view-notes">
-                
+                data-bs-target="#view-notes"
+              >
                 <i className="feather icon-download me-2"></i>
                 Import Product
               </Link>
@@ -71,17 +104,18 @@ const Products = () => {
           <div className="card table-list-card">
             <div className="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
               <SearchFromApi
-                callback={handleSearch}
+                callback={(e) => setSearchQuery(e)}
                 rows={rows}
-                setRows={setRows} />
-              
+                setRows={setRows}
+              />
+
               <div className="d-flex table-dropdown my-xl-auto right-content align-items-center flex-wrap row-gap-3">
                 <div className="dropdown me-2">
                   <Link
                     to="#"
                     className="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
-                    data-bs-toggle="dropdown">
-                    
+                    data-bs-toggle="dropdown"
+                  >
                     Product
                   </Link>
                   <ul className="dropdown-menu  dropdown-menu-end p-3">
@@ -111,8 +145,8 @@ const Products = () => {
                   <Link
                     to="#"
                     className="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
-                    data-bs-toggle="dropdown">
-                    
+                    data-bs-toggle="dropdown"
+                  >
                     Created By
                   </Link>
                   <ul className="dropdown-menu  dropdown-menu-end p-3">
@@ -142,8 +176,8 @@ const Products = () => {
                   <Link
                     to="#"
                     className="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
-                    data-bs-toggle="dropdown">
-                    
+                    data-bs-toggle="dropdown"
+                  >
                     Category
                   </Link>
                   <ul className="dropdown-menu  dropdown-menu-end p-3">
@@ -173,8 +207,8 @@ const Products = () => {
                   <Link
                     to="#"
                     className="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
-                    data-bs-toggle="dropdown">
-                    
+                    data-bs-toggle="dropdown"
+                  >
                     Brand
                   </Link>
                   <ul className="dropdown-menu  dropdown-menu-end p-3">
@@ -204,8 +238,8 @@ const Products = () => {
                   <Link
                     to="#"
                     className="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center"
-                    data-bs-toggle="dropdown">
-                    
+                    data-bs-toggle="dropdown"
+                  >
                     Sort By : Last 7 Days
                   </Link>
                   <ul className="dropdown-menu  dropdown-menu-end p-3">
@@ -263,8 +297,8 @@ const Products = () => {
                       type="button"
                       className="close"
                       data-bs-dismiss="modal"
-                      aria-label="Close">
-                      
+                      aria-label="Close"
+                    >
                       <span aria-hidden="true">×</span>
                     </button>
                   </div>
@@ -284,8 +318,8 @@ const Products = () => {
                                 value={selectedProduct}
                                 onChange={(e) => setSelectedProduct(e.value)}
                                 placeholder="Choose"
-                                filter={false} />
-                              
+                                filter={false}
+                              />
                             </div>
                           </div>
                           <div className="col-sm-6 col-12">
@@ -300,8 +334,8 @@ const Products = () => {
                                 value={selectedCategory}
                                 onChange={(e) => setSelectedCategory(e.value)}
                                 placeholder="Choose"
-                                filter={false} />
-                              
+                                filter={false}
+                              />
                             </div>
                           </div>
                           <div className="col-sm-6 col-12">
@@ -315,11 +349,11 @@ const Products = () => {
                                 options={SubCategory}
                                 value={selectedSubCategory}
                                 onChange={(e) =>
-                                setSelectedSubCategory(e.value)
+                                  setSelectedSubCategory(e.value)
                                 }
                                 placeholder="Choose"
-                                filter={false} />
-                              
+                                filter={false}
+                              />
                             </div>
                           </div>
                           <div className="col-lg-12 col-sm-6 col-12">
@@ -339,10 +373,8 @@ const Products = () => {
                               <div className="image-upload download">
                                 <input type="file" />
                                 <div className="image-uploads">
-                                  <img
-                                    src={downloadImg}
-                                    alt="img" />
-                                  
+                                  <img src={downloadImg} alt="img" />
+
                                   <h4>
                                     Drag and drop a <span>file to upload</span>
                                   </h4>
@@ -367,8 +399,9 @@ const Products = () => {
                               <Editor
                                 value={text}
                                 onTextChange={(e) => setText(e.htmlValue)}
-                                style={{ height: "200px" }} />
-                              
+                                style={{ height: "200px" }}
+                              />
+
                               <p className="mt-1">Maximum 60 Characters</p>
                             </div>
                           </div>
@@ -381,15 +414,15 @@ const Products = () => {
                               <button
                                 type="button"
                                 className="btn btn-cancel me-2 p-2 px-3"
-                                data-bs-dismiss="modal">
-                                
+                                data-bs-dismiss="modal"
+                              >
                                 Cancel
                               </button>
                               <Link
                                 to="#"
                                 className="btn btn-submit p-2 px-3"
-                                data-bs-dismiss="modal">
-                                
+                                data-bs-dismiss="modal"
+                              >
                                 Submit
                               </Link>
                             </div>
@@ -405,8 +438,8 @@ const Products = () => {
         </div>
         {/* /Import Product */}
       </>
-    </div>);
-
+    </div>
+  );
 };
 
 export default Products;

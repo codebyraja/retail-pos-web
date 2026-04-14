@@ -65,24 +65,23 @@ export const warehouseFormSchema = {
 };
 
 export const productFormSchema = {
-  storeId: null,
-  warehouseId: null,
+  storeId: 0,
+  warehouseId: 0,
   code: 0,
   name: "",
   alias: "",
   slug: "",
   sku: "",
-  categoryId: null,
-  subCategoryId: null,
-  brandId: null,
-  unitId: null,
-  barcode: "",
+  categoryId: 0,
+  unitId: 0,
+  barcode: 0,
   description: "",
-  price: "",
-  quantity: "",
-  discountType: "",
-  discountValue: "",
-  taxType: "",
+  discountType: 0,
+  discountValue: 0,
+  qty: 0,
+  price: 0,
+  qtyAlt: 0,
+  taxType: 0,
 };
 
 export const userFormSchema = {

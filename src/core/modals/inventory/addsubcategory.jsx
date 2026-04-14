@@ -13,6 +13,7 @@ const AddSubCategory = () => {
   const [file, setFile] = useState(null);
   const { close, payload } = useModal();
   const [loading, setLoading] = useState(false);
+  const [existingImage, setExistingImage] = useState("");
   const { form, setForm, handleChange, resetForm } = useForm(
     subCategoryFormSchema,
   );
@@ -20,6 +21,8 @@ const AddSubCategory = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [text, setText] = useState("");
   const isEdit = !!payload?.data;
+
+  console.log("payload", payload?.data);
 
   useEffect(() => {
     if (payload?.data) {
@@ -30,6 +33,7 @@ const AddSubCategory = () => {
         status: payload.data.status === "Active",
       });
 
+      setExistingImage(payload.data.image || "");
       // ✅ category set
       setSelectedCategory(payload.data.parentGrpCode);
 
@@ -81,9 +85,14 @@ const AddSubCategory = () => {
       formData.append("masterType", 4);
       formData.append("remark", text);
       formData.append("status", form.status);
-      formData.append("image", file);
+      formData.append("files", file);
+      formData.append(
+        "images",
+        JSON.stringify(existingImage ? [existingImage] : []),
+      );
 
       console.log("formData", [...formData.entries()]);
+
       const res = await fetch(`${api_url}/saveMaster`, {
         method: "POST",
         body: formData,

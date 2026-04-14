@@ -4,9 +4,7 @@ import CommonFooter from "../../components/footer/commonFooter";
 import PrimeDataTable from "../../components/data-table";
 import TableTopHead from "../../components/table-top-head";
 import SearchFromApi from "../../components/data-table/search";
-import CommonSelect from "../../components/select/common-select";
 import DeleteModal from "../../components/delete-modal";
-import { warehouseData } from "../../core/json/warehouse-data";
 import useAppModal from "../../core/common/modal/useAppModal";
 import { api_url } from "../../environment";
 import toast from "react-hot-toast";
@@ -129,7 +127,7 @@ const Warehouse = () => {
       const res = await fetch(`${api_url}/GetMaster?masterType=12`);
       const json = await res.json();
 
-      // console.log("Warehouse data:", json);
+      console.log("Warehouse data:", json);
 
       const formattedData = json?.data?.map((row) => ({
         code: row.code,

@@ -1,194 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CommonFooter from "../../components/footer/commonFooter";
-import {
-  laptop,
-  product1,
-  product10,
-  product11,
-  product12,
-  product13,
-  product14,
-  product15,
-  product16,
-  product17,
-  product2,
-  product3,
-  product4,
-  product5,
-  product6,
-  product7,
-  product8,
-  product9,
-} from "../../utils/imagepath";
 import PrimeDataTable from "../../components/data-table";
 import TableTopHead from "../../components/table-top-head";
-import CommonSelect from "../../components/select/common-select";
-import DeleteModal from "../../components/delete-modal";
 import SearchFromApi from "../../components/data-table/search";
-import { Editor } from "primereact/editor";
 import useAppModal from "../../core/common/modal/useAppModal";
 import { MODAL_TYPES } from "../../routes/modal_root/modalTypes";
 import toast from "react-hot-toast";
 import Loader from "../../components/loader/Loader";
 import { api_url } from "../../environment";
 import { formatDate } from "../../utils/common";
-
-// export const subcateorydata = [
-//   {
-//     id: 1,
-//     img: product1,
-//     category: "Computers",
-//     parentcategory: "Computers",
-//     categorycode: "CT001",
-//     description: "Computers description",
-//     status: "Active",
-//   },
-//   {
-//     id: 2,
-//     img: product2,
-//     category: "Fruits",
-//     parentcategory: "Fruits",
-//     categorycode: "CT002",
-//     description: "Fruits description",
-//     status: "Active",
-//   },
-//   {
-//     id: 3,
-//     img: product3,
-//     category: "Fruits",
-//     parentcategory: "Fruits",
-//     categorycode: "CT003",
-//     description: "Fruits description",
-//     status: "Active",
-//   },
-//   {
-//     id: 4,
-//     img: product4,
-//     category: "Fruits",
-//     parentcategory: "Fruits",
-//     categorycode: "CT004",
-//     description: "Fruits description",
-//     status: "Active",
-//   },
-//   {
-//     id: 5,
-//     img: product5,
-//     category: "Accessories",
-//     parentcategory: "Accessories",
-//     categorycode: "CT005",
-//     description: "Accessories description",
-//     status: "Active",
-//   },
-//   {
-//     id: 6,
-//     img: product6,
-//     category: "Shoes",
-//     parentcategory: "Shoes",
-//     categorycode: "CT006",
-//     description: "Shoes description",
-//     status: "Active",
-//   },
-//   {
-//     id: 7,
-//     img: product7,
-//     category: "Fruits",
-//     parentcategory: "Fruits",
-//     categorycode: "CT007",
-//     description: "Fruits description",
-//     status: "Active",
-//   },
-//   {
-//     id: 8,
-//     img: product8,
-//     category: "Fruits",
-//     parentcategory: "Fruits",
-//     categorycode: "CT008",
-//     description: "Fruits description",
-//     status: "Active",
-//   },
-//   {
-//     id: 9,
-//     img: product9,
-//     category: "Computers",
-//     parentcategory: "Computers",
-//     categorycode: "CT009",
-//     description: "Computers description",
-//     status: "Active",
-//   },
-//   {
-//     id: 10,
-//     img: product10,
-//     category: "Health Care",
-//     parentcategory: "Health Care",
-//     categorycode: "CT0010",
-//     description: "Health Care description",
-//     status: "Active",
-//   },
-//   {
-//     id: 11,
-//     img: product11,
-//     category: "Fruits",
-//     parentcategory: "Fruits",
-//     categorycode: "CT004",
-//     description: "Fruits description",
-//     status: "Active",
-//   },
-//   {
-//     id: 12,
-//     img: product12,
-//     category: "Accessories",
-//     parentcategory: "Accessories",
-//     categorycode: "CT005",
-//     description: "Accessories description",
-//     status: "Active",
-//   },
-//   {
-//     id: 13,
-//     img: product13,
-//     category: "Shoes",
-//     parentcategory: "Shoes",
-//     categorycode: "CT006",
-//     description: "Shoes description",
-//     status: "Active",
-//   },
-//   {
-//     id: 14,
-//     img: product14,
-//     category: "Fruits",
-//     parentcategory: "Fruits",
-//     categorycode: "CT007",
-//     description: "Fruits description",
-//     status: "Active",
-//   },
-//   {
-//     id: 15,
-//     img: product15,
-//     category: "Fruits",
-//     parentcategory: "Fruits",
-//     categorycode: "CT008",
-//     description: "Fruits description",
-//     status: "Active",
-//   },
-//   {
-//     id: 16,
-//     img: product16,
-//     category: "Computers",
-//     parentcategory: "Computers",
-//     categorycode: "CT009",
-//     description: "Computers description",
-//     status: "Active",
-//   },
-//   {
-//     id: 17,
-//     img: product17,
-//     category: "Health Care",
-//     parentcategory: "Health Care",
-//     categorycode: "CT0010",
-//     description: "Health Care description",
-//     status: "Active",
-//   },
-// ];
 
 const SubCategories = () => {
   const [loading, setLoading] = useState(false);
@@ -215,6 +36,7 @@ const SubCategories = () => {
       const json = await res.json();
 
       console.log("json", json);
+
       const formattedData = json?.data.map((row) => ({
         image: row.image,
         parentGrpName: row.parentGrpName,
@@ -255,24 +77,6 @@ const SubCategories = () => {
   };
 
   const columns = [
-    // {
-    //   header: (
-    //     <label className="checkboxs">
-    //       <input type="checkbox" id="select-all" />
-    //       <span className="checkmarks" />
-    //     </label>
-    //   ),
-
-    //   body: () => (
-    //     <label className="checkboxs">
-    //       <input type="checkbox" />
-    //       <span className="checkmarks" />
-    //     </label>
-    //   ),
-
-    //   sortable: false,
-    //   key: "checked",
-    // },
     {
       field: "name",
       header: "Sub Category",
