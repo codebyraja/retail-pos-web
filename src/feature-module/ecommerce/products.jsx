@@ -50,8 +50,6 @@ const Products = () => {
     }
   };
 
-  const fetchCategories = async () => {
-    setLoading(true);
   // const products = [
   //   { value: "Bold V3.2", label: "Bold V3.2" },
   //   { value: "Nike Jordan", label: "Nike Jordan" },

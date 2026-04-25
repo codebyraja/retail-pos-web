@@ -81,8 +81,8 @@ const AddSubCategory = () => {
       formData.append("code", form.code);
       formData.append("name", form.name);
       formData.append("alias", form.alias);
-      formData.append("parentGrp", selectedCategory);
-      formData.append("masterType", 4);
+      formData.append("parentGrp", selectedCategory || 0);
+      formData.append("masterType", 5);
       formData.append("remark", text);
       formData.append("status", form.status);
       formData.append("files", file);
@@ -102,9 +102,9 @@ const AddSubCategory = () => {
         // body: JSON.stringify(requestPayload),
       });
       const data = await res.json();
-
+      console.log("response", data);
       if (data.status === 1) {
-        toast.success(data.msg || "Subcategory saved successfully");
+        toast.success(data.msg || "Group saved successfully");
         payload?.onSuccess?.();
         if (isEdit) {
           close();
@@ -112,7 +112,7 @@ const AddSubCategory = () => {
           resetForm();
         }
       } else {
-        toast.error(data.msg || "Error saving subcategory");
+        toast.error(data.msg || "Error saving group");
       }
     } catch (err) {
       toast.error(err);
@@ -125,7 +125,7 @@ const AddSubCategory = () => {
     <>
       {loading && <Loader loading={loading} />}
       <BaseModal
-        title="Add Sub Category"
+        title="Add Group"
         footer={
           <button
             type="submit"
@@ -163,20 +163,7 @@ const AddSubCategory = () => {
           </div>
           <div className="mb-3">
             <label className="form-label">
-              Category<span className="text-danger ms-1">*</span>
-            </label>
-            <CommonSelect
-              className="w-100"
-              options={categories}
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.value)}
-              placeholder="Choose"
-              filter={false}
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">
-              Sub Category Name
+              Group
               <span className="text-danger ms-1">*</span>
             </label>
             <input
@@ -188,7 +175,7 @@ const AddSubCategory = () => {
             />
           </div>
           <div className="mb-3">
-            <label className="form-label">Sub Category Code</label>
+            <label className="form-label">Alias</label>
             <input
               type="text"
               name="alias"
@@ -197,6 +184,18 @@ const AddSubCategory = () => {
               onChange={handleChange}
             />
           </div>
+          <div className="mb-3">
+            <label className="form-label">Under Group</label>
+            <CommonSelect
+              className="w-100"
+              options={categories}
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.value)}
+              placeholder="Choose"
+              filter={false}
+            />
+          </div>
+
           <div className="mb-3">
             <label className="form-label">Description</label>
             <Editor

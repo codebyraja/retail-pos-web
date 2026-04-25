@@ -7,7 +7,7 @@ import { authRoutes, posPages, unAuthRoutes } from "../routes/path";
 import { useEffect, useState } from "react";
 import TwoColumnSidebar from "../components/layouts/two-column";
 import HorizontalSidebar from "../components/layouts/horizontalSidebar";
-import PosHeader from "./pos/posHeader";
+import PosHeader from "./pos-old/posHeader";
 import { Toaster } from "react-hot-toast";
 import ModalRoot from "../routes/modal_root/modal_root";
 
